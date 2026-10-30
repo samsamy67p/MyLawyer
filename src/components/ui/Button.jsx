@@ -23,36 +23,42 @@ export const Button = React.forwardRef(
     };
 
     const spinnerBorderClass =
-      variant === "default"
+      variant === "default" || variant === "primary" || !variant
         ? "border-white/30 border-t-white"
         : "border-[#1D4ED8]/25 border-t-[#1D4ED8]";
 
     return (
       <button
         ref={ref}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
+        className={cn(baseStyles, variants[variant], sizes[size], className, "relative")}
         disabled={isLoading || props.disabled}
         aria-busy={isLoading ? "true" : undefined}
         {...props}
       >
-        {isLoading ? (
-          <>
+        {isLoading && (
+          <span
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            aria-hidden="true"
+          >
             <span
               className={cn(
-                "inline-block w-4 h-4 rounded-full border-2 animate-spin shrink-0",
+                "rounded-full border-2 animate-spin shrink-0",
+                size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5",
                 spinnerBorderClass
               )}
-              aria-hidden="true"
             />
-            {children ? (
-              <span className="opacity-90">{children}</span>
-            ) : (
-              <span className="sr-only">جاري التحميل...</span>
-            )}
-          </>
-        ) : (
-          children
+            <span className="sr-only">جاري التحميل...</span>
+          </span>
         )}
+        <span
+          className={cn(
+            "inline-flex items-center justify-center gap-2.5",
+            isLoading && "invisible opacity-0 select-none pointer-events-none"
+          )}
+          aria-hidden={isLoading ? "true" : undefined}
+        >
+          {children}
+        </span>
       </button>
     );
   }

@@ -228,20 +228,30 @@ export default function LawyerNowPaymentOverlay({
           <button
             type="button"
             disabled={isProcessing}
-            className="payment-confirm-btn"
+            aria-busy={isProcessing ? 'true' : undefined}
+            className="payment-confirm-btn relative"
             onClick={() => onConfirmPayment?.(bookedLawyer)}
           >
-            {isProcessing ? (
-              <>
-                <Loader2 size={19} className="animate-spin" />
-                <span>جاري معالجة وتأكيد الدفع...</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={19} />
-                <span>{isFailed ? 'إعادة محاولة الدفع' : 'إتمام الدفع'}</span>
-              </>
+            {isProcessing && (
+              <span
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                aria-hidden="true"
+              >
+                <Loader2 size={20} className="animate-spin text-white" />
+                <span className="sr-only">جاري معالجة وتأكيد الدفع...</span>
+              </span>
             )}
+            <span
+              className={
+                isProcessing
+                  ? 'invisible opacity-0 select-none pointer-events-none inline-flex items-center justify-center gap-2'
+                  : 'inline-flex items-center justify-center gap-2'
+              }
+              aria-hidden={isProcessing ? 'true' : undefined}
+            >
+              <CheckCircle2 size={19} />
+              <span>{isFailed ? 'إعادة محاولة الدفع' : 'إتمام الدفع'}</span>
+            </span>
           </button>
         )}
       </footer>

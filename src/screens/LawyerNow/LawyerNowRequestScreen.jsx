@@ -283,21 +283,33 @@ export default function LawyerNowRequestScreen({
             <div className="request-action-bar">
               <button
                 type="button"
-                className="request-submit-btn"
+                className="request-submit-btn relative"
                 disabled={isSearching}
+                aria-busy={isSearching ? 'true' : undefined}
                 onClick={handleSearchLawyers}
               >
-                {isSearching ? (
+                {isSearching && (
                   <span
-                    className="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"
-                    aria-label="جاري التحميل"
-                  />
-                ) : (
-                  <>
-                    <Search size={19} />
-                    <span>بحث عن أقرب محامين متاحين</span>
-                  </>
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    aria-hidden="true"
+                  >
+                    <span
+                      className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin"
+                    />
+                    <span className="sr-only">جاري البحث...</span>
+                  </span>
                 )}
+                <span
+                  className={
+                    isSearching
+                      ? 'invisible opacity-0 select-none pointer-events-none inline-flex items-center justify-center gap-2.5'
+                      : 'inline-flex items-center justify-center gap-2.5'
+                  }
+                  aria-hidden={isSearching ? 'true' : undefined}
+                >
+                  <Search size={19} />
+                  <span>بحث عن أقرب محامين متاحين</span>
+                </span>
               </button>
 
               <button

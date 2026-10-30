@@ -13,12 +13,31 @@ export default function OfflineView({ onRetry, isRetrying }) {
         </p>
         <button
           type="button"
-          className="btn-retry"
+          className="btn-retry relative"
           onClick={onRetry}
           disabled={isRetrying}
+          aria-busy={isRetrying ? 'true' : undefined}
         >
-          <RefreshCw size={17} className={isRetrying ? 'spin-icon' : ''} />
-          <span>{isRetrying ? 'جاري الفحص...' : 'إعادة المحاولة'}</span>
+          {isRetrying && (
+            <span
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              aria-hidden="true"
+            >
+              <RefreshCw size={17} className="spin-icon" />
+              <span className="sr-only">جاري الفحص...</span>
+            </span>
+          )}
+          <span
+            className={
+              isRetrying
+                ? 'invisible opacity-0 select-none pointer-events-none inline-flex items-center justify-center gap-2'
+                : 'inline-flex items-center justify-center gap-2'
+            }
+            aria-hidden={isRetrying ? 'true' : undefined}
+          >
+            <RefreshCw size={17} />
+            <span>إعادة المحاولة</span>
+          </span>
         </button>
       </div>
     </div>

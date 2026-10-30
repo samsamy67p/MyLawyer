@@ -156,12 +156,31 @@ export default function OtpVerificationScreen({ email, onVerified, onBack }) {
           ) : (
             <button
               type="button"
-              className="resend-btn"
+              className="resend-btn relative"
               onClick={handleResend}
               disabled={isResending}
+              aria-busy={isResending ? 'true' : undefined}
             >
-              <RefreshCw size={14} className={isResending ? 'animate-spin' : ''} />
-              <span>إعادة إرسال رمز التحقق</span>
+              {isResending && (
+                <span
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                  aria-hidden="true"
+                >
+                  <RefreshCw size={14} className="animate-spin text-[#1D4ED8]" />
+                  <span className="sr-only">جاري إعادة الإرسال...</span>
+                </span>
+              )}
+              <span
+                className={
+                  isResending
+                    ? 'invisible opacity-0 select-none pointer-events-none inline-flex items-center justify-center gap-2'
+                    : 'inline-flex items-center justify-center gap-2'
+                }
+                aria-hidden={isResending ? 'true' : undefined}
+              >
+                <RefreshCw size={14} />
+                <span>إعادة إرسال رمز التحقق</span>
+              </span>
             </button>
           )}
         </div>

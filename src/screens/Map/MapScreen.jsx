@@ -286,14 +286,29 @@ export default function MapScreen({
             type="button"
             onClick={handleRefreshGps}
             disabled={isRefreshingGps}
-            className="mr-auto text-xs font-bold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full flex items-center gap-1.5 transition-colors shrink-0"
+            aria-busy={isRefreshingGps ? 'true' : undefined}
+            className="mr-auto text-xs font-bold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-colors shrink-0 relative"
           >
-            {isRefreshingGps ? (
-              <Loader2 size={13} className="animate-spin text-[#1D4ED8]" />
-            ) : (
-              <Crosshair size={13} className="text-[#1D4ED8]" />
+            {isRefreshingGps && (
+              <span
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                aria-hidden="true"
+              >
+                <Loader2 size={13} className="animate-spin text-[#1D4ED8]" />
+                <span className="sr-only">جاري تحديث الموقع...</span>
+              </span>
             )}
-            <span>تحديث موقعي</span>
+            <span
+              className={
+                isRefreshingGps
+                  ? 'invisible opacity-0 select-none pointer-events-none inline-flex items-center gap-1.5'
+                  : 'inline-flex items-center gap-1.5'
+              }
+              aria-hidden={isRefreshingGps ? 'true' : undefined}
+            >
+              <Crosshair size={13} className="text-[#1D4ED8]" />
+              <span>تحديث موقعي</span>
+            </span>
           </button>
         </div>
 
