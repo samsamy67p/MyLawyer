@@ -44,6 +44,7 @@ function AppNavigationContent({
   setCurrentUser,
   userLocation,
   setUserLocation,
+  isLocationDone,
   setIsLocationDone,
 }) {
   const { currentPath, navigate, registerModalDismiss, unregisterModalDismiss } = useRouter();

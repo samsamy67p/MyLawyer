@@ -3,7 +3,7 @@
   "appName": "MyLawyer",
   "webDir": "dist",
   "server": {
-    "url": "http://localhost:5173",
+    "url": "http://13.140.141.32",
     "cleartext": true,
     "androidScheme": "https"
   },
