@@ -244,11 +244,11 @@
   gap: 10px;
 }
 
-/* بطاقة طلب المحامي: جدول بيانات أنيق ومنظم */
+/* بطاقة طلب المحامي: جدول بيانات أنيق ومنظم ومحاذاة بالسنتر */
 .lawyer-order-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: right;
+  text-align: center;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
   overflow: hidden;
@@ -273,7 +273,8 @@
   font-size: 0.77rem;
   font-weight: 700;
   color: #475569;
-  vertical-align: top;
+  vertical-align: middle;
+  text-align: center;
   border-left: 1px solid #EDF2F7;
   white-space: nowrap;
 }
@@ -284,14 +285,17 @@
   font-weight: 600;
   color: #0F172A;
   vertical-align: middle;
+  text-align: center;
   line-height: 1.45;
   word-break: break-word;
 }
 
 .lawyer-order-table-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  margin: 0 auto;
 }
 
 /* Lawyer Custom Order Action Buttons: أزرار الإجراءات جنباً إلى جنب دائماً في نفس السطر */

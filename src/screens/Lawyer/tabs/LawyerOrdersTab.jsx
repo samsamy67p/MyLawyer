@@ -166,7 +166,7 @@ export default function LawyerOrdersTab({
                       </div>
                     </th>
                     <td>
-                      <div className="flex items-baseline gap-1">
+                      <div className="inline-flex items-baseline justify-center gap-1">
                         <span className="text-base font-extrabold text-[#1D4ED8]">{order.price}</span>
                         <span className="text-xs font-bold text-slate-500">ج.م (أتعاب فورية)</span>
                       </div>
