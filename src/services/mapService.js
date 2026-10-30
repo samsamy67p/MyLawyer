@@ -6,13 +6,13 @@ import { isValidCoordinate, isWithinEgyptBounds } from '../constants/geo.js';
  * falling back to verified public OSM/FOSSGIS Valhalla & OSRM endpoints.
  */
 const ROUTING_CONFIG = {
+  OSRM_BASE_URL:
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OSRM_URL) ||
+    'http://13.140.141.32/osrm',
   VALHALLA_BASE_URL:
     (typeof import.meta !== 'undefined' && import.meta.env?.VITE_VALHALLA_URL) ||
     'https://valhalla1.openstreetmap.de',
-  OSRM_BASE_URL:
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OSRM_URL) ||
-    'https://routing.openstreetmap.de/routed-car',
-  REQUEST_TIMEOUT_MS: 5500,
+  REQUEST_TIMEOUT_MS: 4000,
   MAX_RETRIES: 2,
   CACHE_TTL_MS: 10 * 60 * 1000, // 10 minutes TTL
   MAX_CACHE_ENTRIES: 120,
@@ -286,7 +286,28 @@ export async function reverseGeocode(latitude, longitude, options = {}) {
   }
 
   const requestPromise = (async () => {
-    // 1. Primary: Fast BigDataCloud Free Client Reverse Geocoding
+    // 1. Primary: Self-Hosted OSRM Nearest Street Lookup on VPS (< 10ms)
+    try {
+      const res = await fetchWithRetry(
+        `${ROUTING_CONFIG.OSRM_BASE_URL}/nearest/v1/driving/${Number(longitude).toFixed(6)},${Number(latitude).toFixed(6)}`,
+        { timeoutMs: 2500 },
+        options.signal,
+        1
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const streetName = data.waypoints?.[0]?.name;
+        if (streetName && streetName.trim().length > 0) {
+          const resolved = streetName.trim();
+          setCachedEntry(geocodeCache, cacheKey, resolved);
+          return resolved;
+        }
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') throw e;
+    }
+
+    // 2. Secondary: Fast BigDataCloud Free Client Reverse Geocoding
     try {
       const res = await fetchWithRetry(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`,
@@ -390,6 +411,55 @@ export async function snapAndComputeRoadMatrix(userPos, candidatePositions, opti
   }
 
   const requestPromise = (async () => {
+    // 1. Primary: Self-Hosted OSRM Table Matrix on VPS (< 10ms)
+    try {
+      const coordsQuery = [userPos, ...candidatePositions]
+        .map((p) => `${p[1].toFixed(6)},${p[0].toFixed(6)}`)
+        .join(';');
+      const tableUrl = `${ROUTING_CONFIG.OSRM_BASE_URL}/table/v1/driving/${coordsQuery}?sources=0&annotations=duration,distance`;
+      const res = await fetchWithRetry(tableUrl, { timeoutMs: 2500 }, options.signal, 1);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.code === 'Ok' && Array.isArray(data.distances?.[0]) && Array.isArray(data.durations?.[0])) {
+          const distancesRow = data.distances[0];
+          const durationsRow = data.durations[0];
+          const destinations = data.destinations || [];
+          const sourcePt = data.sources?.[0];
+
+          const snappedUser = sourcePt?.location
+            ? [sourcePt.location[1], sourcePt.location[0]]
+            : userPos;
+
+          const results = candidatePositions.map((pos, index) => {
+            const targetIdx = index + 1;
+            const distMeters = distancesRow[targetIdx];
+            const durSecs = durationsRow[targetIdx];
+            const dest = destinations[targetIdx];
+
+            if (distMeters == null || durSecs == null) return null;
+
+            const targetSnapped = dest?.location
+              ? [dest.location[1], dest.location[0]]
+              : pos;
+
+            const metrics = formatRouteMetrics(Math.round(distMeters), Math.round(durSecs));
+            return {
+              targetIndex: index,
+              snappedUserCoords: snappedUser,
+              snappedTargetCoords: targetSnapped,
+              ...metrics,
+            };
+          });
+
+          setCachedEntry(routeCache, cacheKey, results);
+          return results;
+        }
+      }
+    } catch (tableErr) {
+      if (tableErr.name === 'AbortError') throw tableErr;
+    }
+
+    // 2. Secondary Fallback: Valhalla OpenStreetMap Matrix
     const payload = {
       sources: [
         {
@@ -537,7 +607,62 @@ export async function getRoadNavigationRoute(startPos, endPos, options = {}) {
   }
 
   const executeRouteFetch = async () => {
-    // --- Engine 1: Valhalla OpenStreetMap Routing Engine ---
+    // --- Engine 1: Self-Hosted High-Performance OSRM C++ Engine on VPS (< 10ms) ---
+    try {
+      const osrmUrl = `${ROUTING_CONFIG.OSRM_BASE_URL}/route/v1/driving/${startPos[1].toFixed(6)},${startPos[0].toFixed(6)};${endPos[1].toFixed(6)},${endPos[0].toFixed(6)}?overview=full&geometries=geojson&steps=true&radiuses=${ROUTING_CONFIG.SNAP_SEARCH_RADIUS_M};${ROUTING_CONFIG.SNAP_SEARCH_RADIUS_M}`;
+      const res = await fetchWithRetry(osrmUrl, { timeoutMs: 2500 }, signal, 1);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.code === 'NoSegment' || data.code === 'NoRoute') {
+          return {
+            status: 'UNREACHABLE',
+            coords: [],
+            errorCode: data.code,
+            errorMessage: 'لا يتوفر مسار بري صالح للمركبات بين النقطتين المحددتين.',
+            isLiveRoad: false,
+          };
+        }
+        const route = data.routes?.[0];
+        if (route?.geometry?.coordinates?.length >= 2) {
+          // OSRM GeoJSON uses [lon, lat] -> convert to [lat, lon]
+          const latLngs = route.geometry.coordinates.map((coord) => [
+            Number(coord[1]),
+            Number(coord[0]),
+          ]);
+          const distanceMeters = Math.round(route.distance || 0);
+          const durationSeconds = Math.round(route.duration || 0);
+
+          const validation = validateRouteGeometry(latLngs, distanceMeters);
+          if (validation.valid) {
+            const metrics = formatRouteMetrics(distanceMeters, durationSeconds);
+            const hasFerry = Array.isArray(route.legs?.[0]?.steps) &&
+              route.legs[0].steps.some((s) => s.mode === 'ferry' || s.maneuver?.type === 'ferry');
+            const result = {
+              status: 'OK',
+              coords: latLngs,
+              snappedStart: latLngs[0],
+              snappedEnd: latLngs[latLngs.length - 1],
+              ...metrics,
+              hasFerry: Boolean(hasFerry),
+              hasToll: false,
+              hasHighway: true,
+              provider: 'mylawyer-osrm-vps',
+              isLiveRoad: true,
+            };
+            setCachedEntry(routeCache, cacheKey, result);
+            return result;
+          }
+        }
+      }
+    } catch (osrmErr) {
+      if (osrmErr.name === 'AbortError') {
+        throw osrmErr;
+      }
+      // Continue to secondary fallback if self-hosted OSRM is unreachable
+    }
+
+    // --- Engine 2: Secondary Valhalla OpenStreetMap Routing Engine ---
     try {
       const payload = {
         locations: [
