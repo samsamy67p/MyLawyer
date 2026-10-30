@@ -192,9 +192,10 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
   // 3. POST /api/v1/lawyers/me/availability (Protected: Toggle online/offline status)
   fastify.post('/me/availability', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { userId } = request.user as AuthenticatedLawyer;
-    const body = request.body as { isAvailable?: boolean };
+    const body = (request.body || {}) as { isAvailable?: boolean; is_available?: boolean };
 
-    const isAvailable = Boolean(body.isAvailable);
+    const rawVal = body.isAvailable !== undefined ? body.isAvailable : body.is_available;
+    const isAvailable = Boolean(rawVal);
 
     const updateRes = await query(
       `UPDATE lawyer_profiles
@@ -221,10 +222,10 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
   // 4. POST /api/v1/lawyers/me/location (Protected: Update live GPS coordinates)
   fastify.post('/me/location', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { userId } = request.user as AuthenticatedLawyer;
-    const body = request.body as { latitude?: number; longitude?: number };
+    const body = (request.body || {}) as any;
 
-    const lat = Number(body.latitude);
-    const lon = Number(body.longitude);
+    const lat = Number(body.latitude ?? body.lat);
+    const lon = Number(body.longitude ?? body.lon ?? body.lng);
 
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       return reply.status(400).send({ success: false, error: 'إحداثيات الموقع غير صالحة' });
