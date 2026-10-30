@@ -126,6 +126,37 @@
   transform: scale(0.99);
 }
 
+.lawyer-hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 116px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 60%, #F8FAFC 100%);
+  border: 1.5px solid #BFDBFE;
+  border-radius: 7px;
+  box-shadow: 0 3px 10px rgba(29, 78, 216, 0.05);
+  box-sizing: border-box;
+}
+
+.lawyer-presence-card {
+  position: relative;
+  width: 100%;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #FFFFFF;
+  border: 1.5px solid #DBEAFE;
+  border-radius: 7px;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.04);
+  box-sizing: border-box;
+}
+
 .promo-banner-content {
   position: relative;
   z-index: 2;

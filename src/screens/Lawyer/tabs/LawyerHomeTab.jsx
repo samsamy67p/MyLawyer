@@ -44,68 +44,66 @@ export default function LawyerHomeTab({
 
   return (
     <main className="home-main-content">
-      {/* 1. كارت المحامي الثابت المنظم والمستغل للمساحة بالكامل بدون فراغات فارغة */}
-      <section className="home-banners-section" aria-label="كارت المحامي التعريفي">
-        <div className="home-promo-banner !min-h-0 !py-3.5 !px-4 sm:!py-4 sm:!px-5 !cursor-default select-none shadow-xs">
-          <div className="flex items-center gap-3.5 w-full">
-            {/* صورة المحامي الدائرية النظيفة بدون أي نقاط */}
-            <div className="shrink-0">
-              <img
-                src={lawyerAvatar}
-                alt={dualName}
-                className="w-16 h-16 sm:w-18 sm:h-18 rounded-full object-cover border-2 border-[#1D4ED8] shadow-sm"
-              />
+      {/* 1. كارت المحامي الثابت المنسق مع فراغات واضحة بين السطور وطول متناسق */}
+      <section aria-label="كارت المحامي التعريفي">
+        <div className="lawyer-hero-banner select-none">
+          {/* صورة المحامي الدائرية الأنيقة */}
+          <div className="shrink-0">
+            <img
+              src={lawyerAvatar}
+              alt={dualName}
+              className="w-18 h-18 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#1D4ED8] shadow-sm"
+            />
+          </div>
+
+          {/* تفاصيل المحامي المهنية مع فراغات مدروسة وموزعة بشكل مريح */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center text-right gap-2">
+            {/* السطر الأول: الاسم الثنائي وشارة الاعتماد بدون حاوية ملونة */}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                {dualName}
+              </h3>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#1D4ED8]">
+                <ShieldCheck size={14} />
+                <span>معتمد بالنقابة</span>
+              </span>
             </div>
 
-            {/* تفاصيل المحامي المهنية مع فراغات مدروسة وموزعة بشكل مريح */}
-            <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
-              {/* السطر الأول: الاسم الثنائي وشارة الاعتماد */}
-              <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
-                  {dualName}
-                </h3>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-[5px] border border-blue-100">
-                  <ShieldCheck size={12} />
-                  <span>معتمد بالنقابة</span>
-                </span>
-              </div>
+            {/* السطر الثاني: الدرجة القضائية مع تباعد سليم */}
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed m-0">
+              {user?.degree || 'محامٍ بالاستئناف العالي ومجلس الدولة'}
+            </p>
 
-              {/* السطر الثاني: الدرجة القضائية */}
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-normal m-0 mb-1.5">
-                {user?.degree || 'محامٍ بالاستئناف العالي ومجلس الدولة'}
-              </p>
-
-              {/* السطر الثالث: رقم القيد وسنوات الخبرة والمحافظة */}
-              <div className="flex items-center gap-2 text-[11px] sm:text-xs text-slate-500 font-medium flex-wrap">
-                <div className="flex items-center gap-1 text-slate-600">
-                  <Scale size={12} className="text-[#1D4ED8]" />
-                  <span>قيد: {user?.syndicateNumber || '482910'}</span>
-                </div>
-                <span>•</span>
-                <span>خبرة 12 عاماً</span>
-                <span>•</span>
-                <span>الجيزة والقاهرة</span>
+            {/* السطر الثالث: رقم القيد وسنوات الخبرة والمحافظة */}
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs text-slate-500 font-medium flex-wrap pt-0.5">
+              <div className="flex items-center gap-1.5 text-slate-600">
+                <Scale size={13} className="text-[#1D4ED8]" />
+                <span>قيد: {user?.syndicateNumber || '482910'}</span>
               </div>
+              <span>•</span>
+              <span>خبرة 12 عاماً</span>
+              <span>•</span>
+              <span>الجيزة والقاهرة</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* 2. بطاقة تفعيل وإيقاف التواجد الميداني الموسعة مع زر السويتش وبدون نقاط */}
-      <section className="mt-2.5" aria-label="حالة التواجد الميداني">
-        <div className="bg-white border border-blue-100 rounded-[7px] py-3.5 px-4 sm:py-4 sm:px-5 shadow-xs flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1 text-right min-w-0 flex-1">
+      <section aria-label="حالة التواجد الميداني">
+        <div className="lawyer-presence-card">
+          <div className="flex flex-col gap-1 text-right min-w-0 flex-1 pl-3">
             <h4 className="text-sm sm:text-base font-bold text-slate-900 m-0 leading-snug">
               {isAvailable ? 'حالة التواجد: متصل الآن' : 'حالة التواجد: غير متاح'}
             </h4>
-            <p className="text-xs text-slate-500 m-0 leading-relaxed">
+            <p className="text-xs text-slate-500 m-0 leading-relaxed mt-0.5">
               {isAvailable
                 ? 'جاهز لاستقبال طلبات الموكلين المباشرة في نطاق موقعك وتلقي الإشعارات الفورية'
                 : 'تم إيقاف استقبال الطلبات الميدانية مؤقتاً، يمكنك تفعيل التواجد في أي وقت'}
             </p>
           </div>
 
-          <div className="shrink-0 flex items-center justify-center">
+          <div className="shrink-0 flex items-center justify-center pr-1">
             <Switch
               id="lawyer-presence-toggle"
               checked={isAvailable}
