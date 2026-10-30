@@ -76,12 +76,12 @@ FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
 
 -- 5. Seed Real Accredited Egyptian Lawyers in Production Database
 -- Real legal practitioners across major strategic centers in Cairo, Giza & Alexandria
--- 100% pure SQL with ON CONFLICT (no PL/pgSQL dollar-quote collisions)
+-- Pure SQL with explicit ENUM casts on all columns
 
 -- Lawyer 1: أ. طارق عبد الحميد (وسط البلد / قصر النيل - القاهرة)
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01012345671', 'tarek.abdelhamid@masrypay.online', 'lawyer', 'active', NOW())
-ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
+VALUES ('01012345671', 'tarek.abdelhamid@masrypay.online', 'lawyer'::user_role, 'active'::user_status, NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active'::user_status, role = 'lawyer'::user_role;
 
 INSERT INTO user_credentials (user_id, password_hash)
 SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
@@ -98,7 +98,7 @@ SELECT
     id,
     'أ. طارق عبد الحميد',
     '/uploads/avatars/lawyer_tarek.jpg',
-    'approved',
+    'approved'::lawyer_approval_status,
     NOW(),
     'EG-SYN-10482',
     'محامي بالنقض ومستشار تجاري وجنائي',
@@ -113,7 +113,7 @@ SELECT
     NOW()
 FROM users WHERE phone = '01012345671'
 ON CONFLICT (user_id) DO UPDATE SET
-    approval_status = 'approved',
+    approval_status = 'approved'::lawyer_approval_status,
     latitude = 30.0489000,
     longitude = 31.2385000,
     is_available = TRUE,
@@ -127,8 +127,8 @@ ON CONFLICT (user_id) DO UPDATE SET
 
 -- Lawyer 2: أ. نادية الشافعي (الدقي / المهندسين - الجيزة)
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01012345672', 'nadia.elshafey@masrypay.online', 'lawyer', 'active', NOW())
-ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
+VALUES ('01012345672', 'nadia.elshafey@masrypay.online', 'lawyer'::user_role, 'active'::user_status, NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active'::user_status, role = 'lawyer'::user_role;
 
 INSERT INTO user_credentials (user_id, password_hash)
 SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
@@ -145,7 +145,7 @@ SELECT
     id,
     'أ. نادية الشافعي',
     '/uploads/avatars/lawyer_nadia.jpg',
-    'approved',
+    'approved'::lawyer_approval_status,
     NOW(),
     'EG-SYN-11934',
     'مستشارة الأحوال الشخصية والنزاعات المستعجلة',
@@ -160,7 +160,7 @@ SELECT
     NOW()
 FROM users WHERE phone = '01012345672'
 ON CONFLICT (user_id) DO UPDATE SET
-    approval_status = 'approved',
+    approval_status = 'approved'::lawyer_approval_status,
     latitude = 30.0385000,
     longitude = 31.2120000,
     is_available = TRUE,
@@ -174,8 +174,8 @@ ON CONFLICT (user_id) DO UPDATE SET
 
 -- Lawyer 3: أ. حسام الدين رضوان (مصر الجديدة / مدينة نصر - القاهرة)
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01012345673', 'hossam.radwan@masrypay.online', 'lawyer', 'active', NOW())
-ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
+VALUES ('01012345673', 'hossam.radwan@masrypay.online', 'lawyer'::user_role, 'active'::user_status, NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active'::user_status, role = 'lawyer'::user_role;
 
 INSERT INTO user_credentials (user_id, password_hash)
 SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
@@ -192,7 +192,7 @@ SELECT
     id,
     'أ. حسام الدين رضوان',
     '/uploads/avatars/lawyer_hossam.jpg',
-    'approved',
+    'approved'::lawyer_approval_status,
     NOW(),
     'EG-SYN-09215',
     'خبير التحقيقات الجنائية والمحاضر الفورية',
@@ -207,7 +207,7 @@ SELECT
     NOW()
 FROM users WHERE phone = '01012345673'
 ON CONFLICT (user_id) DO UPDATE SET
-    approval_status = 'approved',
+    approval_status = 'approved'::lawyer_approval_status,
     latitude = 30.0875000,
     longitude = 31.3280000,
     is_available = TRUE,
@@ -221,8 +221,8 @@ ON CONFLICT (user_id) DO UPDATE SET
 
 -- Lawyer 4: أ. محمود عبد الهادي (المعادي / حلوان - جنوب القاهرة)
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01012345674', 'mahmoud.abdelhady@masrypay.online', 'lawyer', 'active', NOW())
-ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
+VALUES ('01012345674', 'mahmoud.abdelhady@masrypay.online', 'lawyer'::user_role, 'active'::user_status, NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active'::user_status, role = 'lawyer'::user_role;
 
 INSERT INTO user_credentials (user_id, password_hash)
 SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
@@ -239,7 +239,7 @@ SELECT
     id,
     'أ. محمود عبد الهادي',
     '/uploads/avatars/lawyer_mahmoud.jpg',
-    'approved',
+    'approved'::lawyer_approval_status,
     NOW(),
     'EG-SYN-14501',
     'مستشار القضايا العمالية والمدنية والمحاضر',
@@ -254,7 +254,7 @@ SELECT
     NOW()
 FROM users WHERE phone = '01012345674'
 ON CONFLICT (user_id) DO UPDATE SET
-    approval_status = 'approved',
+    approval_status = 'approved'::lawyer_approval_status,
     latitude = 29.9602000,
     longitude = 31.2580000,
     is_available = TRUE,
@@ -268,8 +268,8 @@ ON CONFLICT (user_id) DO UPDATE SET
 
 -- Lawyer 5: أ. سارة المهدي (محطة الرمل / المنشية - الإسكندرية)
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01012345675', 'sara.elmahdy@masrypay.online', 'lawyer', 'active', NOW())
-ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
+VALUES ('01012345675', 'sara.elmahdy@masrypay.online', 'lawyer'::user_role, 'active'::user_status, NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active'::user_status, role = 'lawyer'::user_role;
 
 INSERT INTO user_credentials (user_id, password_hash)
 SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
@@ -286,7 +286,7 @@ SELECT
     id,
     'أ. سارة المهدي',
     '/uploads/avatars/lawyer_sara.jpg',
-    'approved',
+    'approved'::lawyer_approval_status,
     NOW(),
     'EG-SYN-12345',
     'مستشارة التحقيقات والقضايا المستعجلة بالإسكندرية',
@@ -301,7 +301,7 @@ SELECT
     NOW()
 FROM users WHERE phone = '01012345675'
 ON CONFLICT (user_id) DO UPDATE SET
-    approval_status = 'approved',
+    approval_status = 'approved'::lawyer_approval_status,
     latitude = 31.2001000,
     longitude = 29.9187000,
     is_available = TRUE,
@@ -315,7 +315,7 @@ ON CONFLICT (user_id) DO UPDATE SET
 
 -- Client Demo Account for Direct Testing
 INSERT INTO users (phone, email, role, status, email_verified_at)
-VALUES ('01099998888', 'client.demo@masrypay.online', 'client', 'active', NOW())
+VALUES ('01099998888', 'client.demo@masrypay.online', 'client'::user_role, 'active'::user_status, NOW())
 ON CONFLICT (phone) DO NOTHING;
 
 INSERT INTO user_credentials (user_id, password_hash)

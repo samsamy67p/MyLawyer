@@ -18,12 +18,22 @@ export async function runMigrations(closePool = false): Promise<number> {
   `);
 
   // 2. Discover migration files
-  const migrationsDir = path.resolve(__dirname, '../../migrations');
-  if (!fs.existsSync(migrationsDir)) {
-    console.log(`[MIGRATIONS] No migrations directory found at: ${migrationsDir}`);
+  const candidateDirs = [
+    path.resolve(process.cwd(), 'migrations'),
+    path.resolve(__dirname, '../../migrations'),
+    path.resolve(__dirname, '../migrations'),
+    '/var/www/mylawyer/backend/migrations',
+  ];
+
+  const migrationsDir = candidateDirs.find((dir) => fs.existsSync(dir));
+
+  if (!migrationsDir) {
+    console.error(`[MIGRATIONS] ERROR: No migrations directory found! Checked: ${candidateDirs.join(', ')}`);
     if (closePool) await dbPool.end();
-    return 0;
+    throw new Error('Migrations directory not found');
   }
+
+  console.log(`[MIGRATIONS] Using migrations directory: ${migrationsDir}`);
 
   const files = fs.readdirSync(migrationsDir)
     .filter(f => f.endsWith('.sql'))
