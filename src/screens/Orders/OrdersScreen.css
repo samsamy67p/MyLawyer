@@ -1,0 +1,223 @@
+.orders-screen-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #F8FAFC;
+  direction: rtl;
+}
+
+.orders-main-content {
+  padding: 16px;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orders-page-header h2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+
+.orders-page-header p {
+  font-size: 0.80rem;
+  color: #64748B;
+  margin: 0;
+}
+
+/* Filter Row */
+.orders-filter-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.orders-filter-pill {
+  flex: 1 1 0px !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  max-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  gap: 6px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 7px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+.orders-filter-pill.active {
+  background-color: #1D4ED8 !important;
+  border-color: #1D4ED8 !important;
+  color: #FFFFFF !important;
+  transform: none !important;
+}
+
+.filter-count-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.68rem !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 4px !important;
+  border-radius: 5px !important;
+  background-color: #F1F5F9 !important;
+  color: #64748B !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+}
+
+.orders-filter-pill.active .filter-count-badge {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+}
+
+/* Orders Cards */
+.orders-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card-item {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-id-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748B;
+  background-color: #F1F5F9;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.order-status-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.order-status-tag.status-active {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.order-status-tag.status-done {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.order-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-service-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.order-lawyer-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.order-lawyer-name {
+  font-weight: 700;
+  color: #1D4ED8;
+}
+
+.order-lawyer-dot {
+  color: #CBD5E1;
+}
+
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.order-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-date-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.order-price-val {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.order-view-details-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #1D4ED8;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+

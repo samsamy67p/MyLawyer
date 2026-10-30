@@ -1,0 +1,135 @@
+name: MyLawyer CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+          - deploy
+          - rollback
+
+concurrency:
+  group: production_deployment
+  cancel-in-progress: false
+
+jobs:
+  # -----------------------------------------------------------
+  # 1. Quality Assurance & Production Build Job
+  # -----------------------------------------------------------
+  quality_and_build:
+    name: Code Quality, Automated Tests & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Static Analysis (Oxlint - 104 rules)
+        run: npm run lint
+
+      - name: Run Unit & Integration Test Suite (34 automated tests)
+        run: npm test
+
+      - name: Build Web Production Bundle
+        run: npm run build
+
+      - name: Pre-package Dist Artifact
+        run: |
+          tar -czf /tmp/mylawyer-build.tar.gz -C dist .
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mylawyer-build
+          path: /tmp/mylawyer-build.tar.gz
+          retention-days: 7
+
+  # -----------------------------------------------------------
+  # 2. Zero-Downtime Deployment to VPS Job
+  # -----------------------------------------------------------
+  deploy_to_vps:
+    name: Zero-Downtime Atomic Deployment (Contabo VPS)
+    needs: quality_and_build
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.action == 'deploy')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mylawyer-build
+          path: /tmp
+
+      - name: Configure SSH Key & Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Transfer Release Artifact to VPS
+        run: |
+          scp -i ~/.ssh/deploy_key -P ${{ secrets.VPS_PORT }} /tmp/mylawyer-build.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/mylawyer-build.tar.gz
+
+      - name: Execute Atomic Zero-Downtime Deploy on VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "/var/www/mylawyer/deploy.sh"
+
+      - name: Post-Deployment Live Health Check
+        run: |
+          echo "Verifying live public endpoint http://${{ secrets.VPS_HOST }}/ ..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://${{ secrets.VPS_HOST }}/)
+          echo "Received HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Health check failed! Status: $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Production deployment is verified and running successfully."
+
+  # -----------------------------------------------------------
+  # 3. Manual Rollback Job (Triggered via Workflow Dispatch)
+  # -----------------------------------------------------------
+  rollback_vps:
+    name: Emergency Rollback to Previous Stable Release
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH Key & Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Execute Atomic Rollback Script on VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "/var/www/mylawyer/rollback.sh"
+
+      - name: Verify Live Service After Rollback
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://${{ secrets.VPS_HOST }}/)
+          echo "HTTP status after rollback: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Service unhealthy after rollback! Status: $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Rollback verified successfully."

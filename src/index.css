@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Official Thmanyah / Rawi Font System extracted directly from D:\HAT */
+@font-face {
+  font-family: 'ThmanyahSans';
+  src: url('./assets/fonts/thmanyah-sans-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ThmanyahSans';
+  src: url('./assets/fonts/thmanyah-sans-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ThmanyahSans';
+  src: url('./assets/fonts/thmanyah-sans-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ThmanyahSans';
+  src: url('./assets/fonts/thmanyah-sans-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-primary: #1D4ED8;
+  --color-primary-hover: #1E40AF;
+  --color-secondary: #2563EB;
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-main: #0F172A;
+  --color-text-muted: #64748B;
+  --color-border: #E2E8F0;
+  --radius-custom: 7px;
+  --font-arabic: 'ThmanyahSans', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --primary-color: #1D4ED8;
+  --primary-hover: #1E40AF;
+  --secondary-color: #2563EB;
+  --bg-main: #F8FAFC;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border-color: #E2E8F0;
+  --border-radius-global: 7px;
+  --font-family-arabic: 'ThmanyahSans', system-ui, -apple-system, sans-serif;
+  --font-family-latin: 'ThmanyahSans', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  outline: none !important;
+}
+
+input,
+textarea {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+input:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #1D4ED8 !important;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.1) !important;
+}
+
+body {
+  font-family: var(--font-family-arabic);
+  direction: rtl;
+  text-align: right;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Base safeguard: never let adjacent block buttons stick together */
+button + button,
+.w-full + .w-full,
+.btn-group > * + * {
+  margin-top: 12px;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  direction: rtl;
+}
+
+/* Native-Like Smooth Page Transition Animation
+ * - لا تبدأ الصفحة من opacity: 0 حتى لا تظهر خلفية بيضاء فارغة لحظة الانتقال.
+ * - بدون forwards / will-change دائم: انتهاء الحركة يزيل transform فلا يتحول الغلاف
+ *   إلى containing block يكسر العناصر الثابتة (الهيدر والشريط السفلي).
+ */
+.page-transition-wrapper {
+  animation: pageSmoothEnter 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+}
+
+@keyframes pageSmoothEnter {
+  0% {
+    transform: translateY(6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

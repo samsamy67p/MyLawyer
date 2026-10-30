@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # 1. محرك المسارات والملاحة الخاص بمصر (Valhalla Routing Engine - Egypt Only)
+  valhalla:
+    image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
+    container_name: mo7amek_valhalla_egypt
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./valhalla_data:/custom_files
+    environment:
+      - tile_urls=https://download.geofabrik.de/africa/egypt-latest.osm.pbf
+      - use_tiles_ignore_pbf=True
+      - build_elevation=False
+      - build_admins=True
+      - build_time_zones=True
+      - server_threads=4
+
+  # 2. خادم الكاش العكسي لبلاطات الخريطة والمسارات (Nginx Reverse Proxy & Tile Cache)
+  nginx-maps-proxy:
+    image: nginx:stable-alpine
+    container_name: mo7amek_maps_proxy
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./tile_cache:/var/cache/nginx/tiles
+    depends_on:
+      - valhalla
+

@@ -1,0 +1,138 @@
+.location-screen-clean {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 44px 20px 24px;
+  background-color: #F8FAFC;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.location-illustration-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 18px;
+}
+
+.location-svg-img {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  max-height: 135px;
+  object-fit: contain;
+}
+
+.location-intro {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.location-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.location-sub {
+  font-size: 0.9rem;
+  color: #64748B;
+  line-height: 1.55;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.location-error-alert {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 0.84rem;
+  margin-bottom: 16px;
+  border: 1px solid #FEE2E2;
+  text-align: center;
+}
+
+/* Detected State Card */
+.detected-location-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 20px 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.detected-lead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.detected-pin-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 7px;
+  background-color: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detected-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.detected-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: 6px;
+}
+
+.detected-address {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+  text-align: center;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.detected-loading-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  width: 100%;
+}
+
+.location-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

@@ -1,0 +1,150 @@
+.account-screen-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #F8FAFC;
+  direction: rtl;
+}
+
+.account-main-content {
+  padding: 16px;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* User Card */
+.account-profile-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.account-avatar-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background-color: #EFF6FF;
+  border: 2px solid #DBEAFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.account-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.account-user-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.account-user-phone {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: #64748B;
+  direction: ltr;
+  justify-content: flex-end;
+}
+
+.account-user-loc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+/* Menu List */
+.account-menu-list {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #F1F5F9;
+  cursor: pointer;
+  width: 100%;
+  text-align: right;
+  transition: background-color 0.15s ease;
+}
+
+.account-menu-row:last-child {
+  border-bottom: none;
+}
+
+.account-menu-row:active {
+  background-color: #F8FAFC;
+}
+
+.account-menu-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #F1F5F9;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.account-menu-title {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Logout Button */
+.account-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background-color: #FFF1F2;
+  border: 1px solid #FECDD3;
+  border-radius: 7px;
+  color: #E11D48;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+
+.account-logout-btn:active {
+  transform: scale(0.98);
+  background-color: #FFE4E6;
+}
+

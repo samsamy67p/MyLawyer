@@ -1,0 +1,812 @@
+.lawyer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.lawyer-modal-sheet {
+  pointer-events: auto;
+  direction: rtl;
+  text-align: right;
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 480px;
+  height: 50vh;
+  max-height: 50vh;
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  padding: 10px 18px 16px;
+  box-shadow: 0 -6px 26px rgba(15, 23, 42, 0.14);
+  border-top: 1px solid #EEF2F6;
+  animation: slideUpSheet 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.lawyer-modal-sheet.is-dragging {
+  transition: none;
+}
+
+@keyframes slideUpSheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.lawyer-modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0 10px;
+  min-height: 36px;
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.lawyer-modal-header:active {
+  cursor: grabbing;
+}
+
+.lawyer-modal-header button + button {
+  margin-top: 0 !important;
+}
+
+.sheet-pill-handle {
+  width: 42px;
+  height: 4.5px;
+  background-color: #CBD5E1;
+  border-radius: 999px;
+}
+
+.lawyer-modal-back {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: transparent;
+  border: none;
+  color: #1D4ED8;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lawyer-modal-back:active {
+  background-color: transparent;
+  transform: scale(0.90);
+  opacity: 0.75;
+}
+
+.lawyer-modal-close {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: transparent;
+  border: none;
+  color: #475569;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lawyer-modal-close:active {
+  background-color: transparent;
+  color: #0F172A;
+  transform: scale(0.90);
+  opacity: 0.75;
+}
+
+.lawyer-modal-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 6px;
+}
+
+.lawyer-modal-scroll-content::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Hero */
+.lawyer-profile-hero {
+  text-align: right;
+  margin-bottom: 12px;
+}
+
+.lawyer-hero-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  text-align: right;
+  direction: rtl;
+}
+
+.lawyer-avatar-box {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+.lawyer-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.1);
+}
+
+.online-badge-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: #10B981;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+}
+
+.offline-badge-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: #EF4444;
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+}
+
+.lawyer-titles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lawyer-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.lawyer-spec {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin: 2px 0 0;
+}
+
+.lawyer-degree-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1D4ED8;
+  margin-top: 2px;
+}
+
+/* Stats */
+.lawyer-stats-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 8px 8px;
+  margin-top: 10px;
+}
+
+.stat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.stat-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-val {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.stat-lbl {
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 24px;
+  background-color: #E2E8F0;
+}
+
+/* Body */
+.lawyer-details-body {
+  margin-bottom: 8px;
+}
+
+.detail-section {
+  margin-bottom: 10px;
+}
+
+.detail-heading {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.detail-text {
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.spec-tags-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.spec-tag-item {
+  background-color: #F1F5F9;
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 7px;
+  border: 1px solid #E2E8F0;
+}
+
+.lawyer-modal-footer {
+  width: 100%;
+  flex-shrink: 0;
+  padding-top: 6px;
+}
+
+.lawyer-modal-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.lawyer-modal-actions-row > button + button {
+  margin-top: 0 !important;
+}
+
+.lawyer-primary-order-btn {
+  flex: 6 !important;
+  width: auto !important;
+}
+
+.lawyer-alt-btn {
+  flex: 4 !important;
+  width: auto !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  background-color: #FFFFFF !important;
+  border: 1.5px solid #1D4ED8 !important;
+  color: #1D4ED8 !important;
+  font-size: 0.90rem !important;
+  box-shadow: none !important;
+}
+
+.lawyer-alt-btn:hover:not(:disabled) {
+  background-color: #EFF6FF !important;
+  border-color: #1D4ED8 !important;
+}
+
+.lawyer-alt-btn:active:not(:disabled) {
+  background-color: #DBEAFE !important;
+}
+
+.lawyer-no-alt-note {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748B;
+}
+
+/* ========================================================================= */
+/* In-Card Stages: Price Evaluation (1s), Price Ready, Waiting Acceptance    */
+/* ========================================================================= */
+.stage-fade-in {
+  animation: modalStageFade 0.22s ease-out;
+}
+
+@keyframes modalStageFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-stage-center {
+  min-height: 195px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px 12px;
+}
+
+.modal-stage-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 6px;
+}
+
+.modal-stage-sub {
+  font-size: 0.78rem;
+  color: #64748B;
+  line-height: 1.5;
+  max-width: 315px;
+  margin: 0;
+}
+
+.modal-price-ready-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.modal-mini-lawyer-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 2px 10px;
+  border-bottom: 1px solid #EEF2F6;
+}
+
+.modal-mini-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #DBEAFE;
+  flex-shrink: 0;
+}
+
+.modal-mini-info h4 {
+  font-size: 0.90rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 2px;
+}
+
+.modal-mini-info p {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #1D4ED8;
+  margin: 0;
+}
+
+.modal-evaluated-price-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 10px;
+}
+
+.evaluated-price-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.evaluated-price-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.evaluated-price-value strong {
+  font-size: 2.05rem;
+  font-weight: 900;
+  color: #1D4ED8;
+  line-height: 1.05;
+}
+
+.evaluated-price-value span {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.evaluated-price-note {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: #64748B;
+  margin: 0;
+}
+
+/* ========================================================================= */
+/* Waiting Acceptance Stage: Illustration + Spaced Lawyer Avatar + Text      */
+/* ========================================================================= */
+.modal-waiting-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 14px 20px;
+  gap: 18px;
+  min-height: 100%;
+  width: 100%;
+}
+
+.waiting-lawyer-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.waiting-lawyer-avatar-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.waiting-lawyer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #1D4ED8;
+  position: relative;
+  z-index: 2;
+}
+
+.waiting-pulse-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(29, 78, 216, 0.45);
+  animation: waitingRingPulse 1.6s infinite ease-out;
+}
+
+.waiting-lawyer-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0F172A;
+  text-align: center;
+}
+
+.waiting-stage-texts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.waiting-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  width: 100%;
+}
+
+@keyframes waitingRingPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+@media (max-height: 680px) {
+  .waiting-stage-illustration {
+    height: 60px;
+  }
+  .modal-waiting-stage {
+    gap: 10px;
+    padding: 4px 8px;
+  }
+}
+
+/* ========================================================================= */
+/* Lawyer Decision Stage: Acceptance / Rejection Card + 3s Countdown        */
+/* ========================================================================= */
+.modal-decision-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 14px 18px;
+  gap: 10px;
+  min-height: 100%;
+  width: 100%;
+}
+
+.decision-avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2px;
+}
+
+.decision-lawyer-avatar-hero {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #10B981;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.decision-lawyer-name-center {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 2px 0 0;
+  text-align: center;
+}
+
+.decision-direct-text-green {
+  display: block;
+  color: #059669;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.decision-direct-text-red {
+  display: block;
+  color: #E11D48;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.decision-texts-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.decision-headline {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.decision-subtext {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.decision-countdown-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.decision-countdown-number {
+  color: #1D4ED8;
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+/* ========================================================================= */
+/* Google Maps Action Button & In-App WebView Modal                          */
+/* ========================================================================= */
+.lawyer-gmaps-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 14px;
+  background-color: #F8FAFC;
+  color: #1E293B;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 7px;
+  font-size: 0.80rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  margin-top: 4px;
+}
+
+.lawyer-gmaps-btn:hover {
+  background-color: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.lawyer-gmaps-btn:active {
+  background-color: #E2E8F0;
+  transform: scale(0.99);
+}
+
+.google-icon-svg {
+  flex-shrink: 0;
+}
+
+/* Maps In-App WebView Overlay */
+.maps-webview-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  animation: mapsModalSlide 0.22s ease-out;
+}
+
+@keyframes mapsModalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.maps-webview-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
+}
+
+.maps-webview-close-btn {
+  background: transparent;
+  border: none;
+  color: #475569;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.maps-webview-close-btn:active {
+  transform: scale(0.90);
+  opacity: 0.75;
+}
+
+.maps-webview-external-link {
+  color: #1D4ED8;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.maps-webview-external-link:active {
+  transform: scale(0.90);
+  background-color: #EFF6FF;
+}
+
+.maps-webview-title-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.maps-webview-title-box h4 {
+  font-size: 0.90rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.maps-webview-title-box span {
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: #1D4ED8;
+}
+
+.maps-webview-frame-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #F8FAFC;
+}
+
+.maps-webview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

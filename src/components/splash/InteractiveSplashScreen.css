@@ -1,0 +1,99 @@
+/* ==========================================================================
+   InteractiveSplashScreen.css
+   Full-Screen High-Performance Cinematic Video Splash Screen for MyLawyer
+   Always White (#FFFFFF) Background, Seamless Integration with LoginScreen
+   Suppresses all Chromium / Android WebView native play button overlays
+   ========================================================================== */
+
+.interactive-splash-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 99999;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  background-color: #FFFFFF; /* Pure White matching video background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  contain: strict;
+  will-change: opacity;
+}
+
+/* Fullscreen cover video player */
+.splash-video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  pointer-events: none;
+  background-color: #FFFFFF;
+}
+
+.splash-video-player.video-visible {
+  opacity: 1;
+}
+
+/* Complete suppression of all Android / Chromium native media controls and play icon overlays */
+.splash-video-player::-webkit-media-controls,
+.splash-video-player::-webkit-media-controls-enclosure,
+.splash-video-player::-webkit-media-controls-panel,
+.splash-video-player::-webkit-media-controls-play-button,
+.splash-video-player::-webkit-media-controls-start-playback-button,
+.splash-video-player::-webkit-media-controls-overlay-play-button,
+.splash-video-player::-webkit-media-controls-current-time-display,
+.splash-video-player::-webkit-media-controls-time-remaining-display,
+.splash-video-player::-webkit-media-controls-timeline,
+.splash-video-player::-webkit-media-controls-volume-slider {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Solid initial cover that hides any initial rendering artifacts until playback is active */
+.splash-poster-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #FFFFFF;
+  background-size: cover;
+  background-position: center;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.splash-poster-cover.cover-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Outro dissolve into LoginScreen */
+.interactive-splash-root.splash-fading-out {
+  animation: splashFadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes splashFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.02);
+    visibility: hidden;
+  }
+}
