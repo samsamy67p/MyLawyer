@@ -1,0 +1,184 @@
+.register-screen-layout {
+  min-height: 100vh;
+  padding: 24px 20px;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.register-header-box {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.register-main-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 6px;
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: #64748B;
+}
+
+.role-selector-wrap {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.role-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 7px;
+  border: 1.5px solid #E2E8F0;
+  background-color: #F8FAFC;
+  color: #64748B;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-tab-btn.active {
+  border-color: #1D4ED8;
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.register-error-bar {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lawyer-uploads-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 7px;
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+
+.upload-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.upload-dropzone {
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 7px;
+  padding: 16px;
+  text-align: center;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.upload-dropzone.highlight {
+  border-color: #93C5FD;
+  background-color: #F0F7FF;
+}
+
+.empty-upload-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-img.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1D4ED8;
+}
+
+.preview-img.card {
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: 6px;
+  object-fit: contain;
+  border: 1px solid #E2E8F0;
+}
+
+.change-hint {
+  font-size: 12px;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+.privacy-note {
+  font-size: 11px;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+.terms-checkbox-wrap {
+  margin: 6px 0;
+}
+
+.back-to-login-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748B;
+  margin-top: 10px;
+}
+
+.login-link-btn {
+  background: none;
+  border: none;
+  color: #1D4ED8;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -41,7 +41,8 @@ jobs:
           node -v
           npm -v
 
-      - name: Clean Install Dependencies
+      # Frontend Build
+      - name: Clean Install Frontend Dependencies
         run: npm ci
 
       - name: Run Static Analysis (Oxlint - 104 rules)
@@ -53,10 +54,19 @@ jobs:
       - name: Build Web Production Bundle
         run: npm run build
 
-      - name: Package Release Tarball
+      - name: Package Frontend Release Tarball
         run: |
           tar -czf /tmp/mylawyer-build.tar.gz -C dist .
           ls -lh /tmp/mylawyer-build.tar.gz
+
+      # Backend Build
+      - name: Clean Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+          npm run build
+          tar -czf /tmp/mylawyer-backend.tar.gz dist package.json package-lock.json
+          ls -lh /tmp/mylawyer-backend.tar.gz
 
   # -----------------------------------------------------------
   # 2. Zero-Downtime Deployment to VPS Job
@@ -87,6 +97,9 @@ jobs:
             echo "Public Health check failed! Status: $PUBLIC_STATUS"
             exit 1
           fi
+
+          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1/api/v1/health || true)
+          echo "Backend API Health check status: $API_STATUS"
           echo "Zero-Downtime Production Deployment is 100% verified and operational."
 
   # -----------------------------------------------------------

@@ -1,0 +1,129 @@
+.otp-screen-layout {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  direction: rtl;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.otp-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.otp-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 8px;
+}
+
+.otp-desc {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.otp-error-bar {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.otp-success-bar {
+  background-color: #F0FDF4;
+  border: 1px solid #86EFAC;
+  color: #16A34A;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.otp-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.otp-inputs-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.otp-digit-field {
+  width: 48px;
+  height: 54px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 7px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: #0F172A;
+  background-color: #F8FAFC;
+  transition: all 0.2s;
+}
+
+.otp-digit-field:focus {
+  outline: none;
+  border-color: #1D4ED8;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+}
+
+.resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.resend-countdown {
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: #1D4ED8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.otp-back-btn {
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}

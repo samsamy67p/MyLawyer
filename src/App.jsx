@@ -5,11 +5,17 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { RouterProvider, useRouter, ROUTES } from './router/index.js';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { safeJsonParse } from './lib/security';
+import { tokenStorage, authApi } from './services/apiClient';
 import OfflineView from './components/feedback/OfflineView';
 import ScreenErrorBoundary from './components/feedback/ScreenErrorBoundary';
 import InteractiveSplashScreen from './components/splash/InteractiveSplashScreen';
 
 import LoginScreen from './screens/Auth/LoginScreen';
+import RegisterScreen from './screens/Auth/RegisterScreen';
+import OtpVerificationScreen from './screens/Auth/OtpVerificationScreen';
+import AccountStatusScreen from './screens/Auth/AccountStatusScreen';
+import ForgotPasswordScreen from './screens/Auth/ForgotPasswordScreen';
+import LawyerDashboardScreen from './screens/Lawyer/LawyerDashboardScreen';
 
 const loadLocationScreen = () => import('./screens/Location/LocationScreen');
 const loadMapScreen = () => import('./screens/Map/MapScreen');
@@ -48,10 +54,42 @@ function AppNavigationContent({
   // موقع مؤقت لمعاينته في الخريطة التمهيدية
   const [pendingLocation, setPendingLocation] = useState(null);
 
+  // إيميل التحقق المؤقت
+  const [pendingVerifyEmail, setPendingVerifyEmail] = useState('');
+
   // انتقال فوري وسلس بين الشاشات بدون لودينج خارجي
   const transitionTo = useCallback((toRoute, options = {}) => {
     navigate(toRoute, options);
   }, [navigate]);
+
+  // التحقق من صحة جلسة المستخدم من الخادم عند الإقلاع
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = tokenStorage.getAccessToken();
+      if (token) {
+        try {
+          const res = await authApi.getCurrentUser();
+          if (res.success && res.data) {
+            setCurrentUser(res.data);
+            localStorage.setItem('mylawyer_user', JSON.stringify(res.data));
+          }
+        } catch {
+          // Token expired or invalid
+        }
+      }
+    };
+    checkSession();
+  }, [setCurrentUser]);
+
+  // استماع لانتهاء الجلسة
+  useEffect(() => {
+    const handleExpired = () => {
+      setCurrentUser(null);
+      transitionTo(ROUTES.LOGIN, { replace: true, clearHistory: true });
+    };
+    window.addEventListener('mylawyer:session-expired', handleExpired);
+    return () => window.removeEventListener('mylawyer:session-expired', handleExpired);
+  }, [setCurrentUser, transitionTo]);
 
   // معالجة تسجيل الدخول الناجح
   const handleLoginSuccess = (user) => {
@@ -62,12 +100,40 @@ function AppNavigationContent({
     }
     setCurrentUser(user);
 
-    // إذا كان الموقع قد تم حفظه مسبقاً -> التوجه للرئيسية، وإلا -> شاشة إعداد الموقع
+    // توجيه المحامي حسب حالته
+    if (user.role === 'lawyer') {
+      if (user.status === 'active') {
+        transitionTo(ROUTES.LAWYER_DASHBOARD, { replace: true });
+      } else if (user.status === 'pending_admin_approval') {
+        transitionTo(ROUTES.PENDING_APPROVAL, { replace: true });
+      } else {
+        transitionTo(ROUTES.ACCOUNT_STATUS, { replace: true });
+      }
+      return;
+    }
+
+    // توجيه الموكل
     const locDone = localStorage.getItem('mylawyer_location_done') === 'true';
     if (locDone) {
       transitionTo(ROUTES.HOME, { replace: true });
     } else {
       transitionTo(ROUTES.LOCATION_SETUP, { replace: true });
+    }
+  };
+
+  // بعد إتمام التسجيل
+  const handleRegisterSuccess = ({ email }) => {
+    setPendingVerifyEmail(email);
+    transitionTo(ROUTES.VERIFY_OTP);
+  };
+
+  // بعد نجاح إدخال رمز التحقق OTP
+  const handleOtpVerified = (data) => {
+    if (data.role === 'lawyer') {
+      transitionTo(ROUTES.PENDING_APPROVAL, { replace: true });
+    } else {
+      // للموكل: التوجه لشاشة تسجيل الدخول
+      transitionTo(ROUTES.LOGIN, { replace: true });
     }
   };
 
@@ -79,226 +145,264 @@ function AppNavigationContent({
       localStorage.setItem('mylawyer_location_done', 'true');
       setUserLocation(locData);
       setIsLocationDone(true);
+      transitionTo(ROUTES.HOME, { replace: true });
     } catch (e) {
       console.warn(e);
     }
-    transitionTo(ROUTES.HOME, { replace: true });
   };
 
-  // تخطي تحديد الموقع
-  const handleLocationSkip = () => {
+  // تسجيل الخروج المباشر والآمن
+  const handleLogout = async () => {
+    const refreshToken = tokenStorage.getRefreshToken();
     try {
-      localStorage.setItem('mylawyer_location_done', 'true');
-      setIsLocationDone(true);
-    } catch (e) {
-      console.warn(e);
+      await authApi.logout(refreshToken);
+    } catch {
+      // Ignore network errors on logout
     }
-    transitionTo(ROUTES.HOME, { replace: true });
-  };
-
-  // تسجيل الخروج
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem('mylawyer_user');
-    } catch (e) {
-      console.warn(e);
-    }
+    tokenStorage.clearTokens();
     setCurrentUser(null);
-    transitionTo(ROUTES.LOGIN, { replace: true });
+    transitionTo(ROUTES.LOGIN, { replace: true, clearHistory: true });
   };
 
-  // ربط النوافذ المنبثقة والسحب السفلي (Modal Dismiss) بزر الرجوع
-  const handleModalStateChange = useCallback((isOpen, dismissFn) => {
-    if (isOpen) {
-      registerModalDismiss(dismissFn);
-    } else {
-      unregisterModalDismiss();
+  // تبديل التبويبات السفلية للموكل
+  const handleNavTabChange = (tabId) => {
+    switch (tabId) {
+      case 'home':
+        transitionTo(ROUTES.HOME);
+        break;
+      case 'orders':
+        transitionTo(ROUTES.ORDERS);
+        break;
+      case 'wallet':
+        transitionTo(ROUTES.WALLET);
+        break;
+      case 'account':
+        transitionTo(ROUTES.ACCOUNT);
+        break;
+      default:
+        break;
     }
-  }, [registerModalDismiss, unregisterModalDismiss]);
+  };
 
-  // حماية المسارات: إذا لم يكن مسجلاً وحاول فتح مسار محمي -> إعادة توجيه لـ Login
-  useEffect(() => {
-    if (!currentUser && currentPath !== ROUTES.LOGIN) {
-      navigate(ROUTES.LOGIN, { replace: true });
-    }
-  }, [currentUser, currentPath, navigate]);
+  // 1. شاشة تسجيل الدخول
+  if (currentPath === ROUTES.LOGIN) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <LoginScreen
+          onLoginSuccess={handleLoginSuccess}
+          onGuestLogin={() => {
+            const guest = { id: 'guest', phone: '01000000000', role: 'client', status: 'active', isGuest: true };
+            setCurrentUser(guest);
+            transitionTo(ROUTES.HOME, { replace: true });
+          }}
+          onNavigateRegister={() => transitionTo(ROUTES.REGISTER)}
+          onNavigateForgot={() => transitionTo(ROUTES.FORGOT_PASSWORD)}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
 
-  // تحديد ما يتم عرضه وفق مسار التوجيه الحالي (Current Route)
-  // - Suspense: الانتقالات تتم عبر startTransition في الـ Router، لذا تبقى الشاشة الحالية ظاهرة
-  //   أثناء تحميل الشاشة التالية ولا يظهر الـ fallback إلا عند أول تشغيل (وهي محمّلة مسبقاً).
-  // - ScreenErrorBoundary: يحصر أي خطأ عرض داخل الشاشة بدلاً من ترك WebView فارغاً.
-  return (
-    <ScreenErrorBoundary
-      resetKey={currentPath}
-      onRecover={() => transitionTo(currentUser ? ROUTES.HOME : ROUTES.LOGIN, { replace: true })}
-    >
-    <Suspense fallback={<div className="page-transition-wrapper" />}>
-      {/* 1. مسار تسجيل الدخول: /login */}
-      {currentPath === ROUTES.LOGIN && (
-        <div className="page-transition-wrapper" key="auth-screen">
-          <LoginScreen
-            onLoginSuccess={handleLoginSuccess}
-            onGuestLogin={() => handleLoginSuccess({ isGuest: true })}
-          />
-        </div>
-      )}
+  // 2. شاشة إنشاء حساب جديد
+  if (currentPath === ROUTES.REGISTER) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <RegisterScreen
+          onRegisterSuccess={handleRegisterSuccess}
+          onNavigateLogin={() => transitionTo(ROUTES.LOGIN)}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
 
-      {/* 2. مسار إعداد وتحديد الموقع: /location/setup */}
-      {currentPath === ROUTES.LOCATION_SETUP && (
-        <div className="page-transition-wrapper" key="location-setup-screen">
+  // 3. شاشة تأكيد البريد OTP
+  if (currentPath === ROUTES.VERIFY_OTP) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <OtpVerificationScreen
+          email={pendingVerifyEmail || currentUser?.email || ''}
+          onVerified={handleOtpVerified}
+          onBack={() => transitionTo(ROUTES.REGISTER)}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
+
+  // 4. شاشة نسيت كلمة المرور
+  if (currentPath === ROUTES.FORGOT_PASSWORD) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <ForgotPasswordScreen
+          onNavigateLogin={() => transitionTo(ROUTES.LOGIN)}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
+
+  // 5. شاشة انتظار موافقة الإدارة أو الحساب المعلق للمحامي
+  if (currentPath === ROUTES.PENDING_APPROVAL || currentPath === ROUTES.ACCOUNT_STATUS) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <AccountStatusScreen
+          user={currentUser}
+          onLogout={handleLogout}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
+
+  // 6. لوحة المحامي المعتمد
+  if (currentPath === ROUTES.LAWYER_DASHBOARD || (currentUser?.role === 'lawyer' && currentUser?.status === 'active')) {
+    return (
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LAWYER_DASHBOARD)}>
+        <LawyerDashboardScreen
+          user={currentUser}
+          onLogout={handleLogout}
+        />
+      </ScreenErrorBoundary>
+    );
+  }
+
+  // 7. شاشات تحديد الموقع
+  if (currentPath === ROUTES.LOCATION_SETUP) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
           <LocationScreen
-            existingLocation={userLocation}
-            onLocationConfirmed={handleLocationSave}
-            onViewOnMap={(coords, address) => {
+            onLocationSelect={(coords, address) => {
               setPendingLocation({ coords, address });
               transitionTo(ROUTES.LOCATION_MAP);
             }}
-            onSkip={handleLocationSkip}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 3. مسار خريطة تحديد الموقع التمهيدية: /location/map */}
-      {currentPath === ROUTES.LOCATION_MAP && (
-        <div className="page-transition-wrapper" key="location-map-screen">
+  if (currentPath === ROUTES.LOCATION_MAP) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOCATION_SETUP)}>
           <MapScreen
-            userCoords={pendingLocation?.coords || userLocation?.coords}
-            addressTitle={pendingLocation?.address || userLocation?.address}
+            initialCoords={pendingLocation?.coords}
+            initialAddress={pendingLocation?.address}
             onConfirmLocation={(coords, address) => {
               handleLocationSave(coords, address);
             }}
             onBack={() => transitionTo(ROUTES.LOCATION_SETUP)}
-            onModalStateChange={handleModalStateChange}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 4. مسار طلب خدمة "محاميك حالاً" - الخطوة 1 و 2: /lawyer-now/request */}
-      {currentPath === ROUTES.LAWYER_NOW_REQUEST && (
-        <div
-          className="page-transition-wrapper"
-          key={`lawyer-now-request-screen-${requestSessionId}`}
-        >
+  // 8. رحلة "محاميك حالاً"
+  if (currentPath === ROUTES.LAWYER_NOW_REQUEST) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <LawyerNowRequestScreen
-            initialDetails={lawyerNowRequestDetails}
-            onBack={() => {
-              setRequestSessionId((prev) => prev + 1);
-              setLawyerNowRequestDetails(null);
-              transitionTo(ROUTES.HOME);
-            }}
-            onModalStateChange={handleModalStateChange}
-            onProceedToMap={(details) => {
-              setLawyerNowRequestDetails(details || null);
+            key={`lawyer-req-${requestSessionId}`}
+            onBack={() => transitionTo(ROUTES.HOME)}
+            onSubmitDetails={(details) => {
+              setLawyerNowRequestDetails(details);
               transitionTo(ROUTES.LAWYER_NOW_MAP);
             }}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 5. مسار خريطة الملاحة الحية والمحامين: /lawyer-now/map */}
-      {currentPath === ROUTES.LAWYER_NOW_MAP && (
-        <div
-          className="page-transition-wrapper"
-          key={`lawyer-now-map-screen-${requestSessionId}`}
-        >
+  if (currentPath === ROUTES.LAWYER_NOW_MAP) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <LawyerNowScreen
+            key={`lawyer-map-${requestSessionId}`}
             userCoords={userLocation?.coords}
-            addressTitle={userLocation?.address}
+            userAddress={userLocation?.address}
             requestDetails={lawyerNowRequestDetails}
             onBack={() => transitionTo(ROUTES.LAWYER_NOW_REQUEST)}
-            onModalStateChange={handleModalStateChange}
-            onNavigateToOrders={() => {
-              transitionTo(ROUTES.ORDERS);
-            }}
-            onStartNewRequest={() => {
-              setRequestSessionId((prev) => prev + 1);
-              setLawyerNowRequestDetails(null);
-              transitionTo(ROUTES.LAWYER_NOW_REQUEST, { replace: true });
-            }}
+            registerModalDismiss={registerModalDismiss}
+            unregisterModalDismiss={unregisterModalDismiss}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 6. تبويب الشاشة الرئيسية: / */}
-      {currentPath === ROUTES.HOME && (
-        <div className="page-transition-wrapper" key="home-screen">
-          <HomeScreen
-            userLocation={userLocation}
-            activeNavTab="home"
-            onNavTabChange={(tabId, route) => {
-              if (route && route !== ROUTES.HOME) {
-                transitionTo(route);
-              }
-            }}
-            onChangeLocation={() => transitionTo(ROUTES.LOCATION_SETUP)}
-            onOpenLiveMap={() => {
-              setRequestSessionId((prev) => prev + 1);
-              setLawyerNowRequestDetails(null);
-              transitionTo(ROUTES.LAWYER_NOW_REQUEST);
-            }}
-          />
-        </div>
-      )}
-
-      {/* 7. تبويب الطلبات: /orders */}
-      {currentPath === ROUTES.ORDERS && (
-        <div className="page-transition-wrapper" key="orders-screen">
+  // 9. التبويبات الرئيسية (الطلبات، المحفظة، الحساب، الرئيسية)
+  if (currentPath === ROUTES.ORDERS) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <OrdersScreen
             activeNavTab="orders"
-            onNavTabChange={(tabId, route) => {
-              if (route && route !== ROUTES.ORDERS) {
-                transitionTo(route);
-              }
-            }}
+            onNavTabChange={handleNavTabChange}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 8. تبويب المحفظة: /wallet */}
-      {currentPath === ROUTES.WALLET && (
-        <div className="page-transition-wrapper" key="wallet-screen">
+  if (currentPath === ROUTES.WALLET) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <WalletScreen
             activeNavTab="wallet"
-            onNavTabChange={(tabId, route) => {
-              if (route && route !== ROUTES.WALLET) {
-                transitionTo(route);
-              }
-            }}
+            onNavTabChange={handleNavTabChange}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
 
-      {/* 9. تبويب الحساب: /account */}
-      {currentPath === ROUTES.ACCOUNT && (
-        <div className="page-transition-wrapper" key="account-screen">
+  if (currentPath === ROUTES.ACCOUNT) {
+    return (
+      <Suspense fallback={null}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <AccountScreen
             currentUser={currentUser}
             userLocation={userLocation}
             onLogout={handleLogout}
             activeNavTab="account"
-            onNavTabChange={(tabId, route) => {
-              if (route && route !== ROUTES.ACCOUNT) {
-                transitionTo(route);
-              }
-            }}
+            onNavTabChange={handleNavTabChange}
           />
-        </div>
-      )}
+        </ScreenErrorBoundary>
+      </Suspense>
+    );
+  }
+
+  // الافتراضي: الشاشة الرئيسية للموكل
+  return (
+    <Suspense fallback={null}>
+      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
+        <HomeScreen
+          userLocation={userLocation}
+          onChangeLocation={() => transitionTo(ROUTES.LOCATION_SETUP)}
+          onOpenLiveMap={() => {
+            setRequestSessionId((prev) => prev + 1);
+            setLawyerNowRequestDetails(null);
+            transitionTo(ROUTES.LAWYER_NOW_REQUEST);
+          }}
+          activeNavTab="home"
+          onNavTabChange={handleNavTabChange}
+        />
+      </ScreenErrorBoundary>
     </Suspense>
-    </ScreenErrorBoundary>
   );
 }
 
-/**
- * المكون الرئيسي للتطبيق App
- */
 export default function App() {
-  // البدء دائماً بصفحة تسجيل الدخول في كل مرة يتم فيها فتح التطبيق
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      localStorage.removeItem('mylawyer_user');
+      const savedUser = localStorage.getItem('mylawyer_user');
+      if (savedUser) {
+        return safeJsonParse(savedUser, null);
+      }
     } catch {
-      // ignore storage errors
+      // ignore
     }
     return null;
   });
@@ -317,7 +421,6 @@ export default function App() {
 
   const { isConnected, isChecking, recheckNetwork } = useNetworkStatus();
 
-  // شاشة البداية التفاعلية المتحركة: تظهر عند فتح التطبيق لأول مرة في الجلسة
   const [showSplash, setShowSplash] = useState(() => {
     try {
       return !sessionStorage.getItem('mylawyer_splash_shown');
@@ -330,19 +433,16 @@ export default function App() {
     try {
       sessionStorage.setItem('mylawyer_splash_shown', 'true');
     } catch {
-      // ignore storage errors
+      // ignore
     }
     setShowSplash(false);
   }, []);
 
-  // إخفاء شاشة البداية الأصلية فوراً عند تركيب الواجهة وتهيئة الشاشات في الخلفية
   useEffect(() => {
     SplashScreen.hide({ fadeOutDuration: 0 }).catch(() => {});
-
     StatusBar.setStyle({ style: Style.Light }).catch(() => {});
     StatusBar.setBackgroundColor({ color: '#FFFFFF' }).catch(() => {});
 
-    // تحميل مسبق صامت للشاشات في الخلفية بعد ظهور صفحة تسجيل الدخول مباشرة
     const preloadTimer = setTimeout(() => {
       loadLocationScreen();
       loadHomeScreen();
@@ -357,8 +457,6 @@ export default function App() {
     return () => clearTimeout(preloadTimer);
   }, []);
 
-  // عند انقطاع الشبكة تُعرض واجهة عدم الاتصال كطبقة فوق التطبيق بدلاً من تفكيك الـ Router،
-  // حتى لا تضيع الشاشة الحالية وسجل التنقل وبيانات الطلب ويعود المستخدم لتسجيل الدخول.
   return (
     <>
       <RouterProvider initialUser={currentUser} isLocationDone={isLocationDone}>

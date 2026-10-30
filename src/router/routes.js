@@ -4,14 +4,23 @@
  */
 
 export const ROUTES = {
-  // المصادقة
+  // المصادقة والحسابات
   LOGIN: '/login',
+  REGISTER: '/register',
+  VERIFY_OTP: '/verify-otp',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  PENDING_APPROVAL: '/pending-approval',
+  ACCOUNT_STATUS: '/account-status',
+
+  // واجهة المحامي المعتمد
+  LAWYER_DASHBOARD: '/lawyer/dashboard',
 
   // تحديد الموقع والخريطة التمهيدية
   LOCATION_SETUP: '/location/setup',
   LOCATION_MAP: '/location/map',
 
-  // التبويبات الرئيسية (الهيدر السفلي)
+  // التبويبات الرئيسية (الموكل)
   HOME: '/',
   ORDERS: '/orders',
   WALLET: '/wallet',
@@ -46,4 +55,3 @@ export function isValidRoute(path) {
   const normalized = normalizePath(path);
   return VALID_ROUTES.includes(normalized);
 }
-

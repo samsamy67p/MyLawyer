@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, User } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { sanitizeText, isValidPhoneNumber } from '../../lib/security';
+import { sanitizeText } from '../../lib/security';
+import { authApi, tokenStorage } from '../../services/apiClient';
 import SafeIllustration from '../../assets/illustrations/auth-safe.svg';
 import './LoginScreen.css';
 
-export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
-  const [phone, setPhone] = useState('');
+export default function LoginScreen({ onLoginSuccess, onGuestLogin, onNavigateRegister, onNavigateForgot }) {
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,13 +16,13 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
-    const cleanPhone = sanitizeText(phone, 20);
-    if (!cleanPhone || !isValidPhoneNumber(cleanPhone)) {
-      setErrorMsg('أدخل رقم هاتف صحيح');
+    const cleanIdentifier = sanitizeText(identifier, 100);
+    if (!cleanIdentifier) {
+      setErrorMsg('أدخل رقم الهاتف أو البريد الإلكتروني');
       return;
     }
     if (!password || password.length < 6) {
@@ -30,12 +31,22 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (onLoginSuccess) {
-        onLoginSuccess({ phone: cleanPhone, isGuest: false });
+    try {
+      const res = await authApi.login(cleanIdentifier, password, rememberMe);
+      if (res.success && res.data) {
+        tokenStorage.setAccessToken(res.data.accessToken);
+        tokenStorage.setRefreshToken(res.data.refreshToken);
+        if (onLoginSuccess) {
+          onLoginSuccess(res.data.user);
+        }
+      } else {
+        setErrorMsg(res.error || 'فشل تسجيل الدخول');
       }
-    }, 300);
+    } catch (err) {
+      setErrorMsg(err.message || 'حدث خطأ أثناء الاتصال بالخادم');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGuestClick = () => {
@@ -68,13 +79,13 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
       {errorMsg && <div className="error-bar">{errorMsg}</div>}
 
       <form onSubmit={handleSubmit} className="clean-form">
-        {/* Phone Input with Phone Icon */}
+        {/* Identifier Input */}
         <Input
-          type="tel"
-          placeholder="رقم الهاتف"
-          icon={Phone}
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          type="text"
+          placeholder="رقم الهاتف أو البريد الإلكتروني"
+          icon={User}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
         />
 
@@ -109,10 +120,16 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
             <span className="check-box"></span>
             <span>تذكرني</span>
           </label>
-          <button type="button" className="forgot-btn">نسيت كلمة المرور؟</button>
+          <button 
+            type="button" 
+            className="forgot-btn"
+            onClick={onNavigateForgot}
+          >
+            نسيت كلمة المرور؟
+          </button>
         </div>
 
-        {/* Main Submit - Arrow Removed */}
+        {/* Main Submit */}
         <Button type="submit" isLoading={isLoading} className="w-full">
           <span>دخول</span>
         </Button>
@@ -132,7 +149,13 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin }) {
         {/* Register */}
         <div className="register-row">
           <span>ليس لديك حساب؟</span>
-          <button type="button" className="register-btn">إنشاء حساب جديد</button>
+          <button 
+            type="button" 
+            className="register-btn"
+            onClick={onNavigateRegister}
+          >
+            إنشاء حساب جديد
+          </button>
         </div>
       </form>
     </div>
