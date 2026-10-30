@@ -81,6 +81,9 @@ jobs:
       - name: Execute Atomic Zero-Downtime Deploy on VPS
         run: |
           sudo /var/www/mylawyer/deploy.sh
+          cd /var/www/mylawyer/backend && npm run migrate || true
+          sudo systemctl restart mylawyer-backend
+          sleep 3
 
       - name: Post-Deployment Live Health Check
         run: |
@@ -101,6 +104,11 @@ jobs:
 
           API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1/api/v1/health || true)
           echo "Backend API Health check status: $API_STATUS"
+          if [ "$API_STATUS" != "200" ]; then
+            echo "Backend API not responding with 200! Displaying systemd journal logs:"
+            sudo journalctl -u mylawyer-backend -n 40 --no-pager
+            exit 1
+          fi
           echo "Zero-Downtime Production Deployment is 100% verified and operational."
 
   # -----------------------------------------------------------

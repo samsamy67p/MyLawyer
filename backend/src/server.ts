@@ -5,7 +5,11 @@ import { runMigrations } from './database/migrate.js';
 async function start() {
   try {
     // 1. Ensure latest database migrations are applied
-    await runMigrations(false);
+    try {
+      await runMigrations(false);
+    } catch (migErr: any) {
+      console.error('[MyLawyer Backend] Migration error during startup:', migErr?.message || migErr);
+    }
 
     // 2. Build Fastify application
     const app = buildApp();

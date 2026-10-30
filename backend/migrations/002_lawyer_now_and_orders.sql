@@ -76,272 +76,249 @@ FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
 
 -- 5. Seed Real Accredited Egyptian Lawyers in Production Database
 -- Real legal practitioners across major strategic centers in Cairo, Giza & Alexandria
--- Only inserted if their unique phone number does not already exist.
+-- 100% pure SQL with ON CONFLICT (no PL/pgSQL dollar-quote collisions)
 
-DO $$
-DECLARE
-    argon_pwd_hash VARCHAR(255) := '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc';
-    lawyer1_uid UUID;
-    lawyer2_uid UUID;
-    lawyer3_uid UUID;
-    lawyer4_uid UUID;
-    lawyer5_uid UUID;
-    client_test_uid UUID;
-BEGIN
-    -- Lawyer 1: أ. طارق عبد الحميد (وسط البلد / قصر النيل - القاهرة)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01012345671') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01012345671', 'tarek.abdelhamid@masrypay.online', 'lawyer', 'active', NOW())
-        RETURNING id INTO lawyer1_uid;
+-- Lawyer 1: أ. طارق عبد الحميد (وسط البلد / قصر النيل - القاهرة)
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01012345671', 'tarek.abdelhamid@masrypay.online', 'lawyer', 'active', NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (lawyer1_uid, argon_pwd_hash);
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01012345671'
+ON CONFLICT (user_id) DO NOTHING;
 
-        INSERT INTO lawyer_profiles (
-            user_id, full_name, profile_photo_path, approval_status,
-            approved_at, syndicate_number, specialty, degree,
-            rating, reviews_count, experience_years, bio,
-            latitude, longitude, is_available, last_location_updated_at, last_active_at
-        ) VALUES (
-            lawyer1_uid,
-            'أ. طارق عبد الحميد',
-            '/uploads/avatars/lawyer_tarek.jpg',
-            'approved',
-            NOW(),
-            'EG-SYN-10482',
-            'محامي بالنقض ومستشار تجاري وجنائي',
-            'نقض ودستورية عليا',
-            4.95,
-            142,
-            15,
-            'خبرة 15 عاماً في قضايا النيابة العامة والشركات والنزاعات العاجلة بالقاهرة والجيزة.',
-            30.0489000, 31.2385000,
-            TRUE,
-            NOW(),
-            NOW()
-        );
-    ELSE
-        -- Update existing lawyer 1 to active, approved, and available with real coordinates
-        UPDATE users SET status = 'active', role = 'lawyer' WHERE phone = '01012345671';
-        UPDATE lawyer_profiles
-        SET approval_status = 'approved',
-            latitude = 30.0489000,
-            longitude = 31.2385000,
-            is_available = TRUE,
-            specialty = 'محامي بالنقض ومستشار تجاري وجنائي',
-            degree = 'نقض ودستورية عليا',
-            rating = 4.95,
-            reviews_count = 142,
-            experience_years = 15,
-            last_location_updated_at = NOW(),
-            last_active_at = NOW()
-        WHERE user_id = (SELECT id FROM users WHERE phone = '01012345671');
-    END IF;
+INSERT INTO lawyer_profiles (
+    user_id, full_name, profile_photo_path, approval_status,
+    approved_at, syndicate_number, specialty, degree,
+    rating, reviews_count, experience_years, bio,
+    latitude, longitude, is_available, last_location_updated_at, last_active_at
+)
+SELECT
+    id,
+    'أ. طارق عبد الحميد',
+    '/uploads/avatars/lawyer_tarek.jpg',
+    'approved',
+    NOW(),
+    'EG-SYN-10482',
+    'محامي بالنقض ومستشار تجاري وجنائي',
+    'نقض ودستورية عليا',
+    4.95,
+    142,
+    15,
+    'خبرة 15 عاماً في قضايا النيابة العامة والشركات والنزاعات العاجلة بالقاهرة والجيزة.',
+    30.0489000, 31.2385000,
+    TRUE,
+    NOW(),
+    NOW()
+FROM users WHERE phone = '01012345671'
+ON CONFLICT (user_id) DO UPDATE SET
+    approval_status = 'approved',
+    latitude = 30.0489000,
+    longitude = 31.2385000,
+    is_available = TRUE,
+    specialty = 'محامي بالنقض ومستشار تجاري وجنائي',
+    degree = 'نقض ودستورية عليا',
+    rating = 4.95,
+    reviews_count = 142,
+    experience_years = 15,
+    last_location_updated_at = NOW(),
+    last_active_at = NOW();
 
-    -- Lawyer 2: أ. نادية الشافعي (الدقي / المهندسين - الجيزة)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01012345672') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01012345672', 'nadia.elshafey@masrypay.online', 'lawyer', 'active', NOW())
-        RETURNING id INTO lawyer2_uid;
+-- Lawyer 2: أ. نادية الشافعي (الدقي / المهندسين - الجيزة)
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01012345672', 'nadia.elshafey@masrypay.online', 'lawyer', 'active', NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (lawyer2_uid, argon_pwd_hash);
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01012345672'
+ON CONFLICT (user_id) DO NOTHING;
 
-        INSERT INTO lawyer_profiles (
-            user_id, full_name, profile_photo_path, approval_status,
-            approved_at, syndicate_number, specialty, degree,
-            rating, reviews_count, experience_years, bio,
-            latitude, longitude, is_available, last_location_updated_at, last_active_at
-        ) VALUES (
-            lawyer2_uid,
-            'أ. نادية الشافعي',
-            '/uploads/avatars/lawyer_nadia.jpg',
-            'approved',
-            NOW(),
-            'EG-SYN-11934',
-            'مستشارة الأحوال الشخصية والنزاعات المستعجلة',
-            'محامية استئناف عالي',
-            4.88,
-            98,
-            12,
-            'متخصصة في قضايا الأسرة وإجراءات الشهر العقاري والمحاضر المستعجلة في نطاق الجيزة.',
-            30.0385000, 31.2120000,
-            TRUE,
-            NOW(),
-            NOW()
-        );
-    ELSE
-        UPDATE users SET status = 'active', role = 'lawyer' WHERE phone = '01012345672';
-        UPDATE lawyer_profiles
-        SET approval_status = 'approved',
-            latitude = 30.0385000,
-            longitude = 31.2120000,
-            is_available = TRUE,
-            specialty = 'مستشارة الأحوال الشخصية والنزاعات المستعجلة',
-            degree = 'محامية استئناف عالي',
-            rating = 4.88,
-            reviews_count = 98,
-            experience_years = 12,
-            last_location_updated_at = NOW(),
-            last_active_at = NOW()
-        WHERE user_id = (SELECT id FROM users WHERE phone = '01012345672');
-    END IF;
+INSERT INTO lawyer_profiles (
+    user_id, full_name, profile_photo_path, approval_status,
+    approved_at, syndicate_number, specialty, degree,
+    rating, reviews_count, experience_years, bio,
+    latitude, longitude, is_available, last_location_updated_at, last_active_at
+)
+SELECT
+    id,
+    'أ. نادية الشافعي',
+    '/uploads/avatars/lawyer_nadia.jpg',
+    'approved',
+    NOW(),
+    'EG-SYN-11934',
+    'مستشارة الأحوال الشخصية والنزاعات المستعجلة',
+    'محامية استئناف عالي',
+    4.88,
+    98,
+    12,
+    'متخصصة في قضايا الأسرة وإجراءات الشهر العقاري والمحاضر المستعجلة في نطاق الجيزة.',
+    30.0385000, 31.2120000,
+    TRUE,
+    NOW(),
+    NOW()
+FROM users WHERE phone = '01012345672'
+ON CONFLICT (user_id) DO UPDATE SET
+    approval_status = 'approved',
+    latitude = 30.0385000,
+    longitude = 31.2120000,
+    is_available = TRUE,
+    specialty = 'مستشارة الأحوال الشخصية والنزاعات المستعجلة',
+    degree = 'محامية استئناف عالي',
+    rating = 4.88,
+    reviews_count = 98,
+    experience_years = 12,
+    last_location_updated_at = NOW(),
+    last_active_at = NOW();
 
-    -- Lawyer 3: أ. حسام الدين رضوان (مصر الجديدة / مدينة نصر - القاهرة)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01012345673') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01012345673', 'hossam.radwan@masrypay.online', 'lawyer', 'active', NOW())
-        RETURNING id INTO lawyer3_uid;
+-- Lawyer 3: أ. حسام الدين رضوان (مصر الجديدة / مدينة نصر - القاهرة)
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01012345673', 'hossam.radwan@masrypay.online', 'lawyer', 'active', NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (lawyer3_uid, argon_pwd_hash);
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01012345673'
+ON CONFLICT (user_id) DO NOTHING;
 
-        INSERT INTO lawyer_profiles (
-            user_id, full_name, profile_photo_path, approval_status,
-            approved_at, syndicate_number, specialty, degree,
-            rating, reviews_count, experience_years, bio,
-            latitude, longitude, is_available, last_location_updated_at, last_active_at
-        ) VALUES (
-            lawyer3_uid,
-            'أ. حسام الدين رضوان',
-            '/uploads/avatars/lawyer_hossam.jpg',
-            'approved',
-            NOW(),
-            'EG-SYN-09215',
-            'خبير التحقيقات الجنائية والمحاضر الفورية',
-            'محامي نقض ودستورية',
-            4.98,
-            215,
-            18,
-            'حضور تحقيقات النيابة العامة وأقسام الشرطة الفورية على مدار الساعة.',
-            30.0875000, 31.3280000,
-            TRUE,
-            NOW(),
-            NOW()
-        );
-    ELSE
-        UPDATE users SET status = 'active', role = 'lawyer' WHERE phone = '01012345673';
-        UPDATE lawyer_profiles
-        SET approval_status = 'approved',
-            latitude = 30.0875000,
-            longitude = 31.3280000,
-            is_available = TRUE,
-            specialty = 'خبير التحقيقات الجنائية والمحاضر الفورية',
-            degree = 'محامي نقض ودستورية',
-            rating = 4.98,
-            reviews_count = 215,
-            experience_years = 18,
-            last_location_updated_at = NOW(),
-            last_active_at = NOW()
-        WHERE user_id = (SELECT id FROM users WHERE phone = '01012345673');
-    END IF;
+INSERT INTO lawyer_profiles (
+    user_id, full_name, profile_photo_path, approval_status,
+    approved_at, syndicate_number, specialty, degree,
+    rating, reviews_count, experience_years, bio,
+    latitude, longitude, is_available, last_location_updated_at, last_active_at
+)
+SELECT
+    id,
+    'أ. حسام الدين رضوان',
+    '/uploads/avatars/lawyer_hossam.jpg',
+    'approved',
+    NOW(),
+    'EG-SYN-09215',
+    'خبير التحقيقات الجنائية والمحاضر الفورية',
+    'محامي نقض ودستورية',
+    4.98,
+    215,
+    18,
+    'حضور تحقيقات النيابة العامة وأقسام الشرطة الفورية على مدار الساعة.',
+    30.0875000, 31.3280000,
+    TRUE,
+    NOW(),
+    NOW()
+FROM users WHERE phone = '01012345673'
+ON CONFLICT (user_id) DO UPDATE SET
+    approval_status = 'approved',
+    latitude = 30.0875000,
+    longitude = 31.3280000,
+    is_available = TRUE,
+    specialty = 'خبير التحقيقات الجنائية والمحاضر الفورية',
+    degree = 'محامي نقض ودستورية',
+    rating = 4.98,
+    reviews_count = 215,
+    experience_years = 18,
+    last_location_updated_at = NOW(),
+    last_active_at = NOW();
 
-    -- Lawyer 4: أ. محمود عبد الهادي (المعادي / حلوان - جنوب القاهرة)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01012345674') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01012345674', 'mahmoud.abdelhady@masrypay.online', 'lawyer', 'active', NOW())
-        RETURNING id INTO lawyer4_uid;
+-- Lawyer 4: أ. محمود عبد الهادي (المعادي / حلوان - جنوب القاهرة)
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01012345674', 'mahmoud.abdelhady@masrypay.online', 'lawyer', 'active', NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (lawyer4_uid, argon_pwd_hash);
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01012345674'
+ON CONFLICT (user_id) DO NOTHING;
 
-        INSERT INTO lawyer_profiles (
-            user_id, full_name, profile_photo_path, approval_status,
-            approved_at, syndicate_number, specialty, degree,
-            rating, reviews_count, experience_years, bio,
-            latitude, longitude, is_available, last_location_updated_at, last_active_at
-        ) VALUES (
-            lawyer4_uid,
-            'أ. محمود عبد الهادي',
-            '/uploads/avatars/lawyer_mahmoud.jpg',
-            'approved',
-            NOW(),
-            'EG-SYN-14501',
-            'مستشار القضايا العمالية والمدنية والمحاضر',
-            'محامي استئناف',
-            4.82,
-            76,
-            9,
-            'مستشار قانوني معتمد في المنازعات المدنية والإدارية والتمثيل أمام الجهات الرسمية.',
-            29.9602000, 31.2580000,
-            TRUE,
-            NOW(),
-            NOW()
-        );
-    ELSE
-        UPDATE users SET status = 'active', role = 'lawyer' WHERE phone = '01012345674';
-        UPDATE lawyer_profiles
-        SET approval_status = 'approved',
-            latitude = 29.9602000,
-            longitude = 31.2580000,
-            is_available = TRUE,
-            specialty = 'مستشار القضايا العمالية والمدنية والمحاضر',
-            degree = 'محامي استئناف',
-            rating = 4.82,
-            reviews_count = 76,
-            experience_years = 9,
-            last_location_updated_at = NOW(),
-            last_active_at = NOW()
-        WHERE user_id = (SELECT id FROM users WHERE phone = '01012345674');
-    END IF;
+INSERT INTO lawyer_profiles (
+    user_id, full_name, profile_photo_path, approval_status,
+    approved_at, syndicate_number, specialty, degree,
+    rating, reviews_count, experience_years, bio,
+    latitude, longitude, is_available, last_location_updated_at, last_active_at
+)
+SELECT
+    id,
+    'أ. محمود عبد الهادي',
+    '/uploads/avatars/lawyer_mahmoud.jpg',
+    'approved',
+    NOW(),
+    'EG-SYN-14501',
+    'مستشار القضايا العمالية والمدنية والمحاضر',
+    'محامي استئناف',
+    4.82,
+    76,
+    9,
+    'مستشار قانوني معتمد في المنازعات المدنية والإدارية والتمثيل أمام الجهات الرسمية.',
+    29.9602000, 31.2580000,
+    TRUE,
+    NOW(),
+    NOW()
+FROM users WHERE phone = '01012345674'
+ON CONFLICT (user_id) DO UPDATE SET
+    approval_status = 'approved',
+    latitude = 29.9602000,
+    longitude = 31.2580000,
+    is_available = TRUE,
+    specialty = 'مستشار القضايا العمالية والمدنية والمحاضر',
+    degree = 'محامي استئناف',
+    rating = 4.82,
+    reviews_count = 76,
+    experience_years = 9,
+    last_location_updated_at = NOW(),
+    last_active_at = NOW();
 
-    -- Lawyer 5: أ. سارة المهدي (محطة الرمل / المنشية - الإسكندرية)
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01012345675') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01012345675', 'sara.elmahdy@masrypay.online', 'lawyer', 'active', NOW())
-        RETURNING id INTO lawyer5_uid;
+-- Lawyer 5: أ. سارة المهدي (محطة الرمل / المنشية - الإسكندرية)
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01012345675', 'sara.elmahdy@masrypay.online', 'lawyer', 'active', NOW())
+ON CONFLICT (phone) DO UPDATE SET status = 'active', role = 'lawyer';
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (lawyer5_uid, argon_pwd_hash);
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01012345675'
+ON CONFLICT (user_id) DO NOTHING;
 
-        INSERT INTO lawyer_profiles (
-            user_id, full_name, profile_photo_path, approval_status,
-            approved_at, syndicate_number, specialty, degree,
-            rating, reviews_count, experience_years, bio,
-            latitude, longitude, is_available, last_location_updated_at, last_active_at
-        ) VALUES (
-            lawyer5_uid,
-            'أ. سارة المهدي',
-            '/uploads/avatars/lawyer_sara.jpg',
-            'approved',
-            NOW(),
-            'EG-SYN-12345',
-            'مستشارة التحقيقات والقضايا المستعجلة بالإسكندرية',
-            'محامية استئناف',
-            4.91,
-            89,
-            11,
-            'مباشرة الإجراءات العاجلة وتحقيقات النيابة بمحافظة الإسكندرية ومحاكم الاستئناف.',
-            31.2001000, 29.9187000,
-            TRUE,
-            NOW(),
-            NOW()
-        );
-    ELSE
-        UPDATE users SET status = 'active', role = 'lawyer' WHERE phone = '01012345675';
-        UPDATE lawyer_profiles
-        SET approval_status = 'approved',
-            latitude = 31.2001000,
-            longitude = 29.9187000,
-            is_available = TRUE,
-            specialty = 'مستشارة التحقيقات والقضايا المستعجلة بالإسكندرية',
-            degree = 'محامية استئناف',
-            rating = 4.91,
-            reviews_count = 89,
-            experience_years = 11,
-            last_location_updated_at = NOW(),
-            last_active_at = NOW()
-        WHERE user_id = (SELECT id FROM users WHERE phone = '01012345675');
-    END IF;
+INSERT INTO lawyer_profiles (
+    user_id, full_name, profile_photo_path, approval_status,
+    approved_at, syndicate_number, specialty, degree,
+    rating, reviews_count, experience_years, bio,
+    latitude, longitude, is_available, last_location_updated_at, last_active_at
+)
+SELECT
+    id,
+    'أ. سارة المهدي',
+    '/uploads/avatars/lawyer_sara.jpg',
+    'approved',
+    NOW(),
+    'EG-SYN-12345',
+    'مستشارة التحقيقات والقضايا المستعجلة بالإسكندرية',
+    'محامية استئناف',
+    4.91,
+    89,
+    11,
+    'مباشرة الإجراءات العاجلة وتحقيقات النيابة بمحافظة الإسكندرية ومحاكم الاستئناف.',
+    31.2001000, 29.9187000,
+    TRUE,
+    NOW(),
+    NOW()
+FROM users WHERE phone = '01012345675'
+ON CONFLICT (user_id) DO UPDATE SET
+    approval_status = 'approved',
+    latitude = 31.2001000,
+    longitude = 29.9187000,
+    is_available = TRUE,
+    specialty = 'مستشارة التحقيقات والقضايا المستعجلة بالإسكندرية',
+    degree = 'محامية استئناف',
+    rating = 4.91,
+    reviews_count = 89,
+    experience_years = 11,
+    last_location_updated_at = NOW(),
+    last_active_at = NOW();
 
-    -- Ensure a sample client exists for direct integration testing
-    IF NOT EXISTS (SELECT 1 FROM users WHERE phone = '01099998888') THEN
-        INSERT INTO users (phone, email, role, status, email_verified_at)
-        VALUES ('01099998888', 'client.demo@masrypay.online', 'client', 'active', NOW())
-        RETURNING id INTO client_test_uid;
+-- Client Demo Account for Direct Testing
+INSERT INTO users (phone, email, role, status, email_verified_at)
+VALUES ('01099998888', 'client.demo@masrypay.online', 'client', 'active', NOW())
+ON CONFLICT (phone) DO NOTHING;
 
-        INSERT INTO user_credentials (user_id, password_hash)
-        VALUES (client_test_uid, argon_pwd_hash);
-    END IF;
-
-END $$;
+INSERT INTO user_credentials (user_id, password_hash)
+SELECT id, '$argon2id$v=19$m=65536,t=3,p=4$EnD+ZpHaIbiXg31VacrIEg$bsFXuVH75Bb7PWZXDNdYK8m773cbJpTqvbOwmU7HSSc'
+FROM users WHERE phone = '01099998888'
+ON CONFLICT (user_id) DO NOTHING;
