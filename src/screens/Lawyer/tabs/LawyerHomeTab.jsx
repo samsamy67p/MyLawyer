@@ -2,12 +2,13 @@ import React from 'react';
 import {
   PhoneCall,
   Clock,
-  ChevronLeft,
   ShieldCheck,
   Wallet,
   Star,
+  Scale,
 } from 'lucide-react';
 import ServiceRow from '../../../components/common/ServiceRow';
+import Switch from '../../../components/ui/Switch';
 
 const DEFAULT_LAWYER_AVATAR =
   'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=240';
@@ -43,34 +44,23 @@ export default function LawyerHomeTab({
 
   return (
     <main className="home-main-content">
-      {/* كارت المحامي الثابت المنظم بدلاً من البنرات الترويجية */}
+      {/* 1. كارت المحامي الثابت المنظم والمستغل للمساحة بالكامل بدون فراغات فارغة */}
       <section className="home-banners-section" aria-label="كارت المحامي التعريفي">
-        <div
-          className="home-promo-banner !cursor-pointer hover:!border-blue-400 transition-all"
-          onClick={() => onNavigateTab?.('account')}
-          role="button"
-          tabIndex={0}
-        >
-          <div className="flex items-center gap-3.5 w-full py-1">
-            {/* صورة المحامي الدائرية مع مؤشر التوفر */}
-            <div className="relative shrink-0">
+        <div className="home-promo-banner !min-h-0 !py-3.5 !px-4 sm:!py-4 sm:!px-5 !cursor-default select-none shadow-xs">
+          <div className="flex items-center gap-3.5 w-full">
+            {/* صورة المحامي الدائرية النظيفة بدون أي نقاط */}
+            <div className="shrink-0">
               <img
                 src={lawyerAvatar}
                 alt={dualName}
-                className="w-16 h-16 rounded-full object-cover border-2 border-[#1D4ED8] shadow-sm"
-              />
-              <span
-                className={`absolute bottom-0 left-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
-                  isAvailable
-                    ? 'bg-emerald-500 ring-2 ring-emerald-100 animate-pulse'
-                    : 'bg-slate-400'
-                }`}
+                className="w-16 h-16 sm:w-18 sm:h-18 rounded-full object-cover border-2 border-[#1D4ED8] shadow-sm"
               />
             </div>
 
-            {/* الاسم الثنائي والبيانات المهنية المنظمة */}
+            {/* تفاصيل المحامي المهنية مع فراغات مدروسة وموزعة بشكل مريح */}
             <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
-              <div className="flex items-center gap-1.5 flex-wrap">
+              {/* السطر الأول: الاسم الثنائي وشارة الاعتماد */}
+              <div className="flex items-center gap-2 flex-wrap mb-1.5">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
                   {dualName}
                 </h3>
@@ -80,59 +70,59 @@ export default function LawyerHomeTab({
                 </span>
               </div>
 
-              <p className="text-xs text-slate-600 mt-1 line-clamp-1">
+              {/* السطر الثاني: الدرجة القضائية */}
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-normal m-0 mb-1.5">
                 {user?.degree || 'محامٍ بالاستئناف العالي ومجلس الدولة'}
               </p>
 
-              <div className="flex items-center gap-2 mt-1.5 text-[11px] font-medium text-slate-500 flex-wrap">
-                <span>رقم القيد: {user?.syndicateNumber || '482910'}</span>
+              {/* السطر الثالث: رقم القيد وسنوات الخبرة والمحافظة */}
+              <div className="flex items-center gap-2 text-[11px] sm:text-xs text-slate-500 font-medium flex-wrap">
+                <div className="flex items-center gap-1 text-slate-600">
+                  <Scale size={12} className="text-[#1D4ED8]" />
+                  <span>قيد: {user?.syndicateNumber || '482910'}</span>
+                </div>
                 <span>•</span>
-                <span
-                  className={
-                    isAvailable
-                      ? 'text-emerald-700 font-bold'
-                      : 'text-slate-500 font-medium'
-                  }
-                >
-                  {isAvailable ? 'متصل وجاهز للطلبات' : 'غير متصل حالياً'}
-                </span>
+                <span>خبرة 12 عاماً</span>
+                <span>•</span>
+                <span>الجيزة والقاهرة</span>
               </div>
-            </div>
-
-            {/* سهم التنقل لصفحة الحساب */}
-            <div className="shrink-0 text-slate-400 pl-1">
-              <ChevronLeft size={20} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* شريط حالة الاستعداد الميداني وتغيير التوفر */}
-      <div className="location-pill-bar" onClick={onToggleAvailability}>
-        <div className="location-pill-info">
-          <span
-            className={`w-2.5 h-2.5 rounded-full ${
-              isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
-            }`}
-          />
-          <span className="location-pill-text">
-            {isAvailable
-              ? 'حالة الاستعداد الميداني: متصل الآن وتستقبل طلبات الموكلين'
-              : 'حالة الاستعداد الميداني: غير متاح حالياً لاستقبال الطلبات'}
-          </span>
-        </div>
-        <button type="button" className="location-change-link">
-          {isAvailable ? 'إيقاف' : 'تفعيل'}
-        </button>
-      </div>
+      {/* 2. بطاقة تفعيل وإيقاف التواجد الميداني الموسعة مع زر السويتش وبدون نقاط */}
+      <section className="mt-2.5" aria-label="حالة التواجد الميداني">
+        <div className="bg-white border border-blue-100 rounded-[7px] py-3.5 px-4 sm:py-4 sm:px-5 shadow-xs flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-1 text-right min-w-0 flex-1">
+            <h4 className="text-sm sm:text-base font-bold text-slate-900 m-0 leading-snug">
+              {isAvailable ? 'حالة التواجد: متصل الآن' : 'حالة التواجد: غير متاح'}
+            </h4>
+            <p className="text-xs text-slate-500 m-0 leading-relaxed">
+              {isAvailable
+                ? 'جاهز لاستقبال طلبات الموكلين المباشرة في نطاق موقعك وتلقي الإشعارات الفورية'
+                : 'تم إيقاف استقبال الطلبات الميدانية مؤقتاً، يمكنك تفعيل التواجد في أي وقت'}
+            </p>
+          </div>
 
-      {/* قسم المؤشرات والأداء القانوني */}
-      <section className="home-intro-section">
+          <div className="shrink-0 flex items-center justify-center">
+            <Switch
+              id="lawyer-presence-toggle"
+              checked={isAvailable}
+              onChange={onToggleAvailability}
+              ariaLabel="تفعيل أو إيقاف التواجد الميداني"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 3. قسم المؤشرات والأداء القانوني */}
+      <section className="home-intro-section mt-4">
         <h2>مؤشرات الأداء والطلبات</h2>
         <p>إدارة طلبات الموكلين والمحفظة والتقييم الميداني</p>
       </section>
 
-      {/* قائمة الخدمات والإحصائيات */}
+      {/* 4. قائمة الخدمات والإحصائيات */}
       <section className="services-container-list">
         <ServiceRow
           icon={Wallet}
