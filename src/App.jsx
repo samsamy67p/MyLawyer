@@ -171,6 +171,11 @@ function AppNavigationContent({
       // Ignore network errors on logout
     }
     tokenStorage.clearTokens();
+    try {
+      localStorage.removeItem('mylawyer_user');
+    } catch (e) {
+      console.warn(e);
+    }
     setCurrentUser(null);
     transitionTo(ROUTES.LOGIN, { replace: true, clearHistory: true });
   };
@@ -203,8 +208,35 @@ function AppNavigationContent({
           onLoginSuccess={handleLoginSuccess}
           onGuestLogin={() => {
             const guest = { id: 'guest', phone: '01000000000', role: 'client', status: 'active', isGuest: true };
+            try {
+              localStorage.setItem('mylawyer_user', JSON.stringify(guest));
+            } catch (e) {
+              console.warn(e);
+            }
             setCurrentUser(guest);
             transitionTo(ROUTES.HOME, { replace: true });
+          }}
+          onLawyerLogin={() => {
+            const demoLawyer = {
+              id: 'demo_lawyer_01',
+              fullName: 'المستشار / أحمد فهمي',
+              phone: '01012345678',
+              email: 'lawyer.demo@mylawyer.eg',
+              role: 'lawyer',
+              status: 'active',
+              isDemo: true,
+              rating: 4.95,
+              casesCount: 142,
+              specialties: ['جنائي', 'مدني', 'شركات'],
+              officeAddress: 'شارع جامعة الدول العربية، المهندسين، الجيزة',
+            };
+            try {
+              localStorage.setItem('mylawyer_user', JSON.stringify(demoLawyer));
+            } catch (e) {
+              console.warn(e);
+            }
+            setCurrentUser(demoLawyer);
+            transitionTo(ROUTES.LAWYER_DASHBOARD, { replace: true });
           }}
           onNavigateRegister={() => transitionTo(ROUTES.REGISTER)}
           onNavigateForgot={() => transitionTo(ROUTES.FORGOT_PASSWORD)}

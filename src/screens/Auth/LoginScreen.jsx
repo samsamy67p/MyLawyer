@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Lock, Eye, EyeOff, User, Scale } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { sanitizeText } from '../../lib/security';
@@ -7,13 +7,20 @@ import { authApi, tokenStorage } from '../../services/apiClient';
 import SafeIllustration from '../../assets/illustrations/auth-safe.svg';
 import './LoginScreen.css';
 
-export default function LoginScreen({ onLoginSuccess, onGuestLogin, onNavigateRegister, onNavigateForgot }) {
+export default function LoginScreen({
+  onLoginSuccess,
+  onGuestLogin,
+  onLawyerLogin,
+  onNavigateRegister,
+  onNavigateForgot,
+}) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [isLawyerLoading, setIsLawyerLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e) => {
@@ -54,6 +61,14 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin, onNavigateRe
     setTimeout(() => {
       setIsGuestLoading(false);
       onGuestLogin?.();
+    }, 250);
+  };
+
+  const handleLawyerClick = () => {
+    setIsLawyerLoading(true);
+    setTimeout(() => {
+      setIsLawyerLoading(false);
+      onLawyerLogin?.();
     }, 250);
   };
 
@@ -139,11 +154,24 @@ export default function LoginScreen({ onLoginSuccess, onGuestLogin, onNavigateRe
           type="button"
           variant="secondary"
           isLoading={isGuestLoading}
-          disabled={isLoading || isGuestLoading}
+          disabled={isLoading || isGuestLoading || isLawyerLoading}
           className="w-full"
           onClick={handleGuestClick}
         >
           الدخول كزائر
+        </Button>
+
+        {/* Lawyer Demo Action */}
+        <Button
+          type="button"
+          variant="secondary"
+          isLoading={isLawyerLoading}
+          disabled={isLoading || isGuestLoading || isLawyerLoading}
+          className="w-full flex items-center justify-center gap-2 border border-blue-200 text-[#1D4ED8] bg-blue-50/60 hover:bg-blue-100/60 font-bold"
+          onClick={handleLawyerClick}
+        >
+          <Scale size={17} className="text-[#1D4ED8]" />
+          <span>دخول كمحامي</span>
         </Button>
 
         {/* Register */}
