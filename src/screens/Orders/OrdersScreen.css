@@ -221,7 +221,7 @@
   padding: 0;
 }
 
-/* Lawyer Custom Order Card with Wave Accent */
+/* Lawyer Custom Order Card */
 .lawyer-order-card {
   position: relative;
   background-color: #FFFFFF;
@@ -234,17 +234,6 @@
   box-shadow: 0 3px 12px rgba(29, 78, 216, 0.05);
   overflow: hidden;
   box-sizing: border-box;
-}
-
-.lawyer-order-wave {
-  position: absolute;
-  top: -15px;
-  left: -20px;
-  width: 130px;
-  height: 90px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.75;
 }
 
 .lawyer-order-content {
