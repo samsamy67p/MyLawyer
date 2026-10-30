@@ -12,6 +12,10 @@ import {
   ShieldAlert,
   Activity,
   Hash,
+  Layers,
+  Inbox,
+  Clock,
+  Ban,
 } from 'lucide-react';
 import emptyOrdersIllustration from '../../../assets/undraw_done_erdp.svg';
 
@@ -35,53 +39,58 @@ export default function LawyerOrdersTab({
 
   return (
     <main className="orders-main-content">
-      {/* فلتر تصنيف الطلبات */}
-      <div className="orders-filter-row">
+      {/* فلتر تصنيف الطلبات الموسع والقابل للتمرير الأفقي المريح بالأيقونات */}
+      <div className="lawyer-orders-filter-scroll">
         <button
           type="button"
-          className={`orders-filter-pill ${ordersFilter === 'ALL' ? 'active' : ''}`}
+          className={`lawyer-filter-pill ${ordersFilter === 'ALL' ? 'active' : ''}`}
           onClick={() => setOrdersFilter('ALL')}
         >
+          <Layers size={15} />
           <span>الكل</span>
-          <span className="filter-count-badge">{ordersList.length}</span>
+          <span className="lawyer-filter-count">{ordersList.length}</span>
         </button>
         <button
           type="button"
-          className={`orders-filter-pill ${ordersFilter === 'INCOMING' ? 'active' : ''}`}
+          className={`lawyer-filter-pill ${ordersFilter === 'INCOMING' ? 'active' : ''}`}
           onClick={() => setOrdersFilter('INCOMING')}
         >
+          <Inbox size={15} />
           <span>الواردة</span>
-          <span className="filter-count-badge">
+          <span className="lawyer-filter-count">
             {ordersList.filter((o) => o.status === 'INCOMING').length}
           </span>
         </button>
         <button
           type="button"
-          className={`orders-filter-pill ${ordersFilter === 'ACTIVE' ? 'active' : ''}`}
+          className={`lawyer-filter-pill ${ordersFilter === 'ACTIVE' ? 'active' : ''}`}
           onClick={() => setOrdersFilter('ACTIVE')}
         >
+          <Clock size={15} />
           <span>الجارية</span>
-          <span className="filter-count-badge">
+          <span className="lawyer-filter-count">
             {ordersList.filter((o) => o.status === 'ACTIVE').length}
           </span>
         </button>
         <button
           type="button"
-          className={`orders-filter-pill ${ordersFilter === 'COMPLETED' ? 'active' : ''}`}
+          className={`lawyer-filter-pill ${ordersFilter === 'COMPLETED' ? 'active' : ''}`}
           onClick={() => setOrdersFilter('COMPLETED')}
         >
+          <CheckCircle2 size={15} />
           <span>المكتملة</span>
-          <span className="filter-count-badge">
+          <span className="lawyer-filter-count">
             {ordersList.filter((o) => o.status === 'COMPLETED').length}
           </span>
         </button>
         <button
           type="button"
-          className={`orders-filter-pill ${ordersFilter === 'CANCELLED' ? 'active' : ''}`}
+          className={`lawyer-filter-pill ${ordersFilter === 'CANCELLED' ? 'active' : ''}`}
           onClick={() => setOrdersFilter('CANCELLED')}
         >
+          <Ban size={15} />
           <span>الملغية</span>
-          <span className="filter-count-badge">
+          <span className="lawyer-filter-count">
             {ordersList.filter((o) => o.status === 'CANCELLED').length}
           </span>
         </button>
