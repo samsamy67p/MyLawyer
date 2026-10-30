@@ -5,8 +5,12 @@ import {
   X,
   Phone,
   CheckCircle2,
-  Zap,
   Calendar,
+  User,
+  CheckSquare,
+  FileText,
+  Coins,
+  ShieldAlert,
 } from 'lucide-react';
 
 export default function LawyerOrdersTab({
@@ -75,19 +79,15 @@ export default function LawyerOrdersTab({
       <div className="orders-cards-list">
         {filteredOrders.map((order) => (
           <div key={order.id} className="lawyer-order-card">
-            {/* محتوى البطاقة المنظم */}
             <div className="lawyer-order-content">
-              {/* 1. أعلى البطاقة: رقم الطلب دون حاوية مع التاريخ والحالة */}
-              <div className="flex items-center justify-between text-right">
-                <span className="text-sm font-bold text-slate-700 tracking-wide">
-                  #{order.id}
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
-                    <Calendar size={12} />
-                    <span>{order.date}</span>
-                  </span>
+              {/* قائمة بيانات الطلب: كل معلومة في سطر منفصل ومنسق */}
+              <div className="lawyer-order-rows">
+                {/* 1. السطر الأول: رقم الطلب وحالته المباشرة */}
+                <div className="flex items-center justify-between text-right border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold text-slate-500">رقم الطلب:</span>
+                    <span className="text-sm font-bold text-[#1D4ED8] tracking-wider">#{order.id}</span>
+                  </div>
                   <span
                     className={`text-xs font-bold ${
                       order.status === 'COMPLETED'
@@ -100,41 +100,79 @@ export default function LawyerOrdersTab({
                     {order.statusLabel}
                   </span>
                 </div>
-              </div>
 
-              {/* 2. جسم البطاقة: الأيقونة الدائرية، اسم الخدمة، اسم الموكل، والسعر */}
-              <div className="flex items-start justify-between gap-3 pt-1">
-                <div className="flex items-start gap-3 min-w-0 flex-1">
-                  {/* الأيقونة الدائرية المتناسقة مع هوية التطبيق */}
-                  <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-[#1D4ED8]">
-                    <Zap size={18} />
-                  </div>
-
-                  {/* نصوص الخدمة والموكل والتفاصيل */}
-                  <div className="flex flex-col gap-1 text-right min-w-0">
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 m-0 leading-snug">
-                      محاميك حالاً
-                    </h4>
-                    <p className="text-xs font-semibold text-slate-700 m-0">
-                      الموكل: {order.clientName}
-                    </p>
-                    <p className="text-[11px] text-slate-500 m-0 line-clamp-1">
-                      {order.specialty}
-                    </p>
-                  </div>
-                </div>
-
-                {/* السعر المالي البارز */}
-                <div className="shrink-0 text-left flex flex-col items-end justify-center pl-1">
-                  <span className="text-base sm:text-lg font-bold text-[#1D4ED8] leading-none">
-                    {order.price} ج.م
+                {/* 2. السطر الثاني: تاريخ ووقت الطلب */}
+                <div className="lawyer-order-row-item">
+                  <span className="lawyer-order-row-label">
+                    <Calendar size={13} className="text-[#1D4ED8]" />
+                    <span>تاريخ ووقت الطلب</span>
                   </span>
-                  <span className="text-[10px] text-slate-400 mt-1 font-medium">أتعاب فورية</span>
+                  <span className="lawyer-order-row-value">{order.date}</span>
+                </div>
+
+                {/* 3. السطر الثالث: الخدمة المطلوبة */}
+                <div className="lawyer-order-row-item">
+                  <span className="lawyer-order-row-label">
+                    <ShieldAlert size={13} className="text-[#1D4ED8]" />
+                    <span>الخدمة</span>
+                  </span>
+                  <span className="lawyer-order-row-value lawyer-order-row-value-primary">
+                    {order.serviceTitle || 'محاميك حالاً'}
+                  </span>
+                </div>
+
+                {/* 4. السطر الرابع: اسم الموكل */}
+                <div className="lawyer-order-row-item">
+                  <span className="lawyer-order-row-label">
+                    <User size={13} className="text-[#1D4ED8]" />
+                    <span>الموكل</span>
+                  </span>
+                  <span className="lawyer-order-row-value lawyer-order-row-value-highlight">
+                    {order.clientName}
+                  </span>
+                </div>
+
+                {/* 5. السطر الخامس: الاختيار الذي اختاره الموكل عند طلب الخدمة */}
+                {(order.clientChoice || order.specialty) && (
+                  <div className="lawyer-order-row-item">
+                    <span className="lawyer-order-row-label">
+                      <CheckSquare size={13} className="text-[#1D4ED8]" />
+                      <span>اختيار الموكل</span>
+                    </span>
+                    <span className="lawyer-order-row-value text-slate-800 font-semibold">
+                      {order.clientChoice || order.specialty}
+                    </span>
+                  </div>
+                )}
+
+                {/* 6. السطر السادس: نص المشكلة التي كتبها الموكل */}
+                {order.problemDescription && (
+                  <div className="lawyer-order-row-item">
+                    <span className="lawyer-order-row-label">
+                      <FileText size={13} className="text-[#1D4ED8]" />
+                      <span>نص المشكلة المكتوبة من الموكل</span>
+                    </span>
+                    <p className="lawyer-order-row-value-desc m-0">
+                      {order.problemDescription}
+                    </p>
+                  </div>
+                )}
+
+                {/* 7. السطر السابع: الأتعاب */}
+                <div className="lawyer-order-row-item pt-1">
+                  <span className="lawyer-order-row-label">
+                    <Coins size={13} className="text-[#1D4ED8]" />
+                    <span>الأتعاب المستحقة</span>
+                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="lawyer-order-row-value-price">{order.price}</span>
+                    <span className="text-xs font-bold text-slate-500">ج.م (أتعاب فورية)</span>
+                  </div>
                 </div>
               </div>
 
-              {/* 3. شريط الأزرار المنسقة والموحدة مع إطار متقطع (Dashed Border) */}
-              <div className="lawyer-order-actions">
+              {/* 8. السطر الثامن: أزرار الإجراءات (موزعة بالتساوي في شبكة تمنع أي زر وحيد في سطر) */}
+              <div className="lawyer-order-actions-grid">
                 {/* زر فتح الخريطة */}
                 <button
                   type="button"
