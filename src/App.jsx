@@ -275,6 +275,10 @@ function AppNavigationContent({
 
   // 7. شاشات تحديد الموقع
   if (currentPath === ROUTES.LOCATION_SETUP) {
+    if (isLocationDone) {
+      transitionTo(ROUTES.HOME, { replace: true });
+      return null;
+    }
     return (
       <Suspense fallback={null}>
         <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
@@ -300,16 +304,16 @@ function AppNavigationContent({
   if (currentPath === ROUTES.LOCATION_MAP) {
     return (
       <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOCATION_SETUP)}>
+        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <MapScreen
-            userCoords={pendingLocation?.coords}
-            initialCoords={pendingLocation?.coords}
-            addressTitle={pendingLocation?.address}
-            initialAddress={pendingLocation?.address}
+            userCoords={pendingLocation?.coords || userLocation?.coords}
+            initialCoords={pendingLocation?.coords || userLocation?.coords}
+            addressTitle={pendingLocation?.address || userLocation?.address}
+            initialAddress={pendingLocation?.address || userLocation?.address}
             onConfirmLocation={(coords, address) => {
               handleLocationSave(coords, address);
             }}
-            onBack={() => transitionTo(ROUTES.LOCATION_SETUP)}
+            onBack={() => transitionTo(ROUTES.HOME)}
           />
         </ScreenErrorBoundary>
       </Suspense>
@@ -413,7 +417,10 @@ function AppNavigationContent({
       <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
         <HomeScreen
           userLocation={userLocation}
-          onChangeLocation={() => transitionTo(ROUTES.LOCATION_SETUP)}
+          onChangeLocation={() => {
+            setPendingLocation(userLocation);
+            transitionTo(ROUTES.LOCATION_MAP);
+          }}
           onOpenLiveMap={() => {
             setRequestSessionId((prev) => prev + 1);
             setLawyerNowRequestDetails(null);

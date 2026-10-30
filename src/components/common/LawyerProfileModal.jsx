@@ -450,9 +450,9 @@ export default function LawyerProfileModal({
             {readOnly ? (
               <Button
                 type="button"
-                variant="secondary"
+                variant="primary"
                 onClick={onClose}
-                className="w-full text-base font-bold"
+                className="w-full h-12 text-base font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-[7px] shadow-sm flex items-center justify-center"
               >
                 <span>إغلاق الملف</span>
               </Button>

@@ -5,8 +5,9 @@ import {
   ChevronRight,
   Crosshair,
   MapPin,
-  ArrowLeft,
+  Loader2,
 } from 'lucide-react';
+import { Geolocation } from '@capacitor/geolocation';
 import { Button } from '../../components/ui/Button';
 import LawyerProfileModal from '../../components/common/LawyerProfileModal';
 import MapActionController from '../../components/map/MapActionController';
@@ -14,6 +15,7 @@ import ResilientTileLayer from '../../components/map/ResilientTileLayer';
 import RouteStatusBadge from '../../components/map/RouteStatusBadge';
 import { createUserMarkerIcon, createLawyerMarkerIcon } from '../../components/map/MapMarkerIcons';
 import { useNearbyLawyersRoute } from '../../hooks/useNearbyLawyersRoute';
+import { reverseGeocode } from '../../services/mapService';
 import { EGYPT_MAX_BOUNDS } from '../../constants/geo';
 import './MapScreen.css';
 
@@ -28,6 +30,13 @@ export default function MapScreen({
 }) {
   const effectiveCoords = userCoords || initialCoords;
   const effectiveAddress = addressTitle || initialAddress;
+
+  const [liveCoords, setLiveCoords] = useState(null);
+  const [liveAddress, setLiveAddress] = useState(null);
+  const [isRefreshingGps, setIsRefreshingGps] = useState(false);
+
+  const currentCoordsToUse = liveCoords || effectiveCoords;
+  const currentAddressToUse = liveAddress || effectiveAddress;
 
   const {
     position,
@@ -44,7 +53,7 @@ export default function MapScreen({
     activeRouteCoords,
     routeInfo,
     routeErrorMsg,
-  } = useNearbyLawyersRoute(effectiveCoords);
+  } = useNearbyLawyersRoute(currentCoordsToUse);
 
   const mapRef = useRef(null);
   const hasUserSelectedLawyerRef = useRef(false);
@@ -122,14 +131,49 @@ export default function MapScreen({
   };
 
   const handleRecenter = () => {
-    actionSeqRef.current += 1;
-    setMapAction({
-      type: 'RECENTER_USER',
-      position,
-      isSheetOpen: true,
-      sheetHeightRatio: isModalOpen ? 0.5 : 0.25,
-      seq: actionSeqRef.current,
-    });
+    handleRefreshGps();
+  };
+
+  const handleRefreshGps = async () => {
+    if (isRefreshingGps) return;
+    setIsRefreshingGps(true);
+    try {
+      try {
+        await Geolocation.requestPermissions();
+      } catch (e) {
+        console.warn('GPS permission:', e);
+      }
+      let coords;
+      try {
+        coords = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
+      } catch {
+        coords = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: false,
+          timeout: 10000,
+        });
+      }
+      if (coords?.coords) {
+        const { latitude, longitude } = coords.coords;
+        setLiveCoords({ latitude, longitude });
+        const resolved = await reverseGeocode(latitude, longitude);
+        setLiveAddress(resolved);
+        actionSeqRef.current += 1;
+        setMapAction({
+          type: 'RECENTER_USER',
+          position: [latitude, longitude],
+          isSheetOpen: true,
+          sheetHeightRatio: isModalOpen ? 0.5 : 0.25,
+          seq: actionSeqRef.current,
+        });
+      }
+    } catch (e) {
+      console.warn('Refresh GPS error:', e);
+    } finally {
+      setIsRefreshingGps(false);
+    }
   };
 
   return (
@@ -185,7 +229,7 @@ export default function MapScreen({
             <Popup className="clean-custom-popup">
               <div className="popup-inner">
                 <strong>موقعك المعتمد</strong>
-                <p>{effectiveAddress || 'تم تحديد موقعك بدقة'}</p>
+                <p>{currentAddressToUse || 'تم تحديد موقعك بدقة'}</p>
               </div>
             </Popup>
           </Marker>
@@ -213,10 +257,15 @@ export default function MapScreen({
         <button
           type="button"
           onClick={handleRecenter}
+          disabled={isRefreshingGps}
           className="map-recenter-float"
           aria-label="إعادة التمركز على موقعي"
         >
-          <Crosshair size={21} className="text-[#1D4ED8]" />
+          {isRefreshingGps ? (
+            <Loader2 size={21} className="text-[#1D4ED8] animate-spin" />
+          ) : (
+            <Crosshair size={21} className="text-[#1D4ED8]" />
+          )}
         </button>
 
         {/* Floating Route Distance/Duration Badge */}
@@ -240,23 +289,35 @@ export default function MapScreen({
           </div>
           <div className="map-summary-text">
             <span className="map-summary-label">الموقع المحدد للخدمة</span>
-            <h4 className="map-summary-address">{effectiveAddress || 'مصر'}</h4>
+            <h4 className="map-summary-address">{currentAddressToUse || 'مصر'}</h4>
           </div>
+          <button
+            type="button"
+            onClick={handleRefreshGps}
+            disabled={isRefreshingGps}
+            className="mr-auto text-xs font-bold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 py-1.5 px-3 rounded-full flex items-center gap-1.5 transition-colors shrink-0"
+          >
+            {isRefreshingGps ? (
+              <Loader2 size={13} className="animate-spin text-[#1D4ED8]" />
+            ) : (
+              <Crosshair size={13} className="text-[#1D4ED8]" />
+            )}
+            <span>تحديث موقعي</span>
+          </button>
         </div>
 
         <Button
           variant="primary"
           size="lg"
-          className="w-full h-12 text-[15px] font-bold rounded-[7px] shadow-sm flex items-center justify-center gap-2"
+          className="w-full h-12 text-[15px] font-bold rounded-[7px] bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm flex items-center justify-center"
           onClick={() =>
             onConfirmLocation?.(
               { latitude: position[0], longitude: position[1] },
-              effectiveAddress
+              currentAddressToUse
             )
           }
         >
           <span>التالي</span>
-          <ArrowLeft size={18} />
         </Button>
       </div>
 
