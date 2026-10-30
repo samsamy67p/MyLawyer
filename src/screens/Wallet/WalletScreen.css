@@ -1,14 +1,21 @@
 .wallet-screen-layout {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: #F8FAFC;
   direction: rtl;
+  overflow: hidden;
 }
 
 .wallet-main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding: 16px;
-  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 24px;
   max-width: 520px;
   width: 100%;
   margin: 0 auto;

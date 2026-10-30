@@ -31,6 +31,9 @@ public class MainActivity extends BridgeActivity {
             // Allow videos to autoplay immediately without requiring a user gesture
             // and without displaying the default Android media playback icon overlay
             settings.setMediaPlaybackRequiresUserGesture(false);
+
+            // Disable WebView overscroll bounce effect to guarantee solid, bounce-free header & bottom nav
+            webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
         }
     }
 }
