@@ -87,7 +87,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
       // Audit history
       await client.query(
         `INSERT INTO lawyer_approval_history (lawyer_profile_id, action, reason, admin_user_id)
-         VALUES ($1, $2::lawyer_action_type, $3, $4)`,
+         VALUES ($1, $2::approval_action_type, $3, $4)`,
         [id, decision, cleanReason, adminId]
       );
     });
