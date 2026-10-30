@@ -429,7 +429,25 @@
   color: #047857;
   border: 1.5px dashed #6EE7B7;
   box-sizing: border-box;
-  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* شارة إلغاء الطلب */
+.lawyer-order-status-cancelled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background-color: #FFF1F2;
+  color: #E11D48;
+  border: 1.5px dashed #FDA4AF;
+  box-sizing: border-box;
   width: 100%;
 }
 

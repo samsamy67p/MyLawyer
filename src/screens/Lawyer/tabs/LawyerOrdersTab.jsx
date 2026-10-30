@@ -3,7 +3,6 @@ import {
   MapPin,
   Check,
   X,
-  Phone,
   CheckCircle2,
   Calendar,
   User,
@@ -94,6 +93,8 @@ export default function LawyerOrdersTab({
                         ? 'text-emerald-600'
                         : order.status === 'ACTIVE'
                         ? 'text-amber-600'
+                        : order.status === 'CANCELLED'
+                        ? 'text-rose-600'
                         : 'text-[#1D4ED8]'
                     }`}
                   >
@@ -171,21 +172,20 @@ export default function LawyerOrdersTab({
                 </div>
               </div>
 
-              {/* 8. السطر الثامن: أزرار الإجراءات (موزعة بالتساوي في شبكة تمنع أي زر وحيد في سطر) */}
+              {/* 8. السطر الثامن: أزرار الإجراءات وحالة إنجاز أو إلغاء الطلب */}
               <div className="lawyer-order-actions-grid">
-                {/* زر فتح الخريطة */}
-                <button
-                  type="button"
-                  onClick={() => handleOpenMapLocation(order)}
-                  className="lawyer-order-btn lawyer-order-btn-map"
-                >
-                  <MapPin size={14} />
-                  <span>فتح الخريطة</span>
-                </button>
-
-                {/* أزرار الحالات الخاصة بالطلب */}
+                {/* 1. إذا كان طلب جديد: إظهار فتح الخريطة، قبول، اعتذار */}
                 {order.status === 'INCOMING' && (
                   <>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenMapLocation(order)}
+                      className="lawyer-order-btn lawyer-order-btn-map"
+                    >
+                      <MapPin size={14} />
+                      <span>فتح الخريطة</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => onAcceptOrder?.(order.id)}
@@ -206,31 +206,31 @@ export default function LawyerOrdersTab({
                   </>
                 )}
 
+                {/* 2. إذا كان قيد التنفيذ: إظهار إنهاء المهمة */}
                 {order.status === 'ACTIVE' && (
-                  <>
-                    <a
-                      href={`tel:${order.clientPhone}`}
-                      className="lawyer-order-btn lawyer-order-btn-call"
-                    >
-                      <Phone size={14} />
-                      <span>اتصال بالموكل</span>
-                    </a>
-
-                    <button
-                      type="button"
-                      onClick={() => onCompleteOrder?.(order.id, order.price)}
-                      className="lawyer-order-btn lawyer-order-btn-complete"
-                    >
-                      <CheckCircle2 size={14} />
-                      <span>إنهاء الإجراء</span>
-                    </button>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => onCompleteOrder?.(order.id, order.price)}
+                    className="lawyer-order-btn lawyer-order-btn-complete"
+                  >
+                    <CheckCircle2 size={14} />
+                    <span>إنهاء المهمة</span>
+                  </button>
                 )}
 
+                {/* 3. بعد الإنهاء: تمييز الطلب أنه منجز (تم إنجاز الطلب) */}
                 {order.status === 'COMPLETED' && (
                   <div className="lawyer-order-status-completed">
                     <CheckCircle2 size={14} />
-                    <span>تم إنجاز الطلب بنجاح</span>
+                    <span>تم إنجاز الطلب</span>
+                  </div>
+                )}
+
+                {/* 4. إذا كان ملغي: إظهار أنه ملغي */}
+                {order.status === 'CANCELLED' && (
+                  <div className="lawyer-order-status-cancelled">
+                    <X size={14} />
+                    <span>تم إلغاء الطلب</span>
                   </div>
                 )}
               </div>

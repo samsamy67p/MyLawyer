@@ -77,7 +77,13 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
   };
 
   const handleRejectOrder = (orderId) => {
-    setOrdersList((prev) => prev.filter((o) => o.id !== orderId));
+    setOrdersList((prev) =>
+      prev.map((o) =>
+        o.id === orderId
+          ? { ...o, status: 'CANCELLED', statusLabel: 'ملغي' }
+          : o
+      )
+    );
   };
 
   const handleCompleteOrder = (orderId, amount) => {
