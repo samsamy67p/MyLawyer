@@ -102,13 +102,13 @@ export default function LawyerOrdersTab({
                   </span>
                 </div>
 
-                {/* 2. السطر الثاني: تاريخ ووقت الطلب */}
-                <div className="lawyer-order-row-item">
-                  <span className="lawyer-order-row-label">
+                {/* 2. السطر الثاني: تاريخ ووقت الطلب بجوار العنوان مباشرة */}
+                <div className="flex items-center gap-2 text-right">
+                  <span className="lawyer-order-row-label m-0">
                     <Calendar size={13} className="text-[#1D4ED8]" />
-                    <span>تاريخ ووقت الطلب</span>
+                    <span>تاريخ ووقت الطلب:</span>
                   </span>
-                  <span className="lawyer-order-row-value">{order.date}</span>
+                  <span className="text-xs font-semibold text-slate-800">{order.date}</span>
                 </div>
 
                 {/* 3. السطر الثالث: الخدمة المطلوبة */}
