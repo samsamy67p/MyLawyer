@@ -8,6 +8,7 @@ import './LocationScreen.css';
 
 export default function LocationScreen({
   existingLocation,
+  onLocationSelect,
   onLocationConfirmed,
   onViewOnMap,
   onSkip,
@@ -138,7 +139,9 @@ export default function LocationScreen({
             <Button
               type="button"
               onClick={() => {
-                if (onViewOnMap) {
+                if (onLocationSelect) {
+                  onLocationSelect(currentCoords, addressTitle);
+                } else if (onViewOnMap) {
                   onViewOnMap(currentCoords, addressTitle);
                 } else if (onLocationConfirmed) {
                   onLocationConfirmed(currentCoords, addressTitle);
@@ -160,6 +163,14 @@ export default function LocationScreen({
               <Navigation size={17} />
               <span>تحديث الموقع الفعلي الحالي</span>
             </Button>
+
+            <button
+              type="button"
+              onClick={() => onSkip && onSkip()}
+              className="text-xs text-[#64748B] hover:text-[#1D4ED8] mt-2 py-2 text-center font-medium block w-full transition-colors"
+            >
+              تخطي وتحديد الموقع لاحقاً
+            </button>
           </>
         )}
       </div>

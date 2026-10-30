@@ -76,6 +76,17 @@ textarea {
   -webkit-user-select: text !important;
 }
 
+/* Suppress browser native password reveal and clear buttons (Edge / Chromium on Windows) */
+input::-ms-reveal,
+input::-ms-clear,
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
 input:focus,
 textarea:focus {
   outline: none !important;

@@ -203,8 +203,10 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateLogin }) {
           leftElement={
             <button
               type="button"
-              className="text-[#94A3B8] hover:text-[#0F172A] p-1"
+              className="text-[#94A3B8] hover:text-[#0F172A] p-1 flex items-center justify-center transition-colors focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+              tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>

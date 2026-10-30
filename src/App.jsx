@@ -151,6 +151,17 @@ function AppNavigationContent({
     }
   };
 
+  // تخطي تحديد الموقع والمتابعة للرئيسية مباشرة
+  const handleLocationSkip = () => {
+    try {
+      localStorage.setItem('mylawyer_location_done', 'true');
+      setIsLocationDone(true);
+      transitionTo(ROUTES.HOME, { replace: true });
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
   // تسجيل الخروج المباشر والآمن
   const handleLogout = async () => {
     const refreshToken = tokenStorage.getRefreshToken();
@@ -272,6 +283,14 @@ function AppNavigationContent({
               setPendingLocation({ coords, address });
               transitionTo(ROUTES.LOCATION_MAP);
             }}
+            onViewOnMap={(coords, address) => {
+              setPendingLocation({ coords, address });
+              transitionTo(ROUTES.LOCATION_MAP);
+            }}
+            onLocationConfirmed={(coords, address) => {
+              handleLocationSave(coords, address);
+            }}
+            onSkip={handleLocationSkip}
           />
         </ScreenErrorBoundary>
       </Suspense>
