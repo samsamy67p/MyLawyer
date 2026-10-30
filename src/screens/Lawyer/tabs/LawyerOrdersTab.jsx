@@ -20,7 +20,7 @@ export default function LawyerOrdersTab({
   onRejectOrder,
   onCompleteOrder,
 }) {
-  const [ordersFilter, setOrdersFilter] = useState('ALL'); // 'ALL' | 'INCOMING' | 'ACTIVE' | 'COMPLETED'
+  const [ordersFilter, setOrdersFilter] = useState('ALL'); // 'ALL' | 'INCOMING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
 
   const filteredOrders = ordersList.filter((o) => {
     if (ordersFilter === 'ALL') return true;
@@ -72,6 +72,16 @@ export default function LawyerOrdersTab({
           <span>المكتملة</span>
           <span className="filter-count-badge">
             {ordersList.filter((o) => o.status === 'COMPLETED').length}
+          </span>
+        </button>
+        <button
+          type="button"
+          className={`orders-filter-pill ${ordersFilter === 'CANCELLED' ? 'active' : ''}`}
+          onClick={() => setOrdersFilter('CANCELLED')}
+        >
+          <span>الملغية</span>
+          <span className="filter-count-badge">
+            {ordersList.filter((o) => o.status === 'CANCELLED').length}
           </span>
         </button>
       </div>
