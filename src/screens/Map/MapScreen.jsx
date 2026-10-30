@@ -2,12 +2,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { MapContainer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-  ChevronRight,
   Crosshair,
   MapPin,
   Loader2,
 } from 'lucide-react';
 import { Geolocation } from '@capacitor/geolocation';
+import Header from '../../components/layout/Header';
 import { Button } from '../../components/ui/Button';
 import LawyerProfileModal from '../../components/common/LawyerProfileModal';
 import MapActionController from '../../components/map/MapActionController';
@@ -178,21 +178,12 @@ export default function MapScreen({
 
   return (
     <div className="map-screen-wrapper">
-      {/* Top Floating App Bar */}
-      <header className="map-top-bar">
-        <button
-          type="button"
-          onClick={onBack}
-          className="map-back-btn"
-          aria-label="رجوع"
-        >
-          <ChevronRight size={22} />
-        </button>
-        <div className="map-top-title">
-          <h3>موقعك على الخريطة</h3>
-        </div>
-        <div className="w-[38px]"></div>
-      </header>
+      {/* Unified Global Header */}
+      <Header
+        title="موقعك على الخريطة"
+        showBack={true}
+        onBack={onBack}
+      />
 
       {/* Map Canvas */}
       <div className="map-canvas-container">
