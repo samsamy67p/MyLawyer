@@ -32,16 +32,24 @@ export const Button = React.forwardRef(
         ref={ref}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         disabled={isLoading || props.disabled}
+        aria-busy={isLoading ? "true" : undefined}
         {...props}
       >
         {isLoading ? (
-          <span
-            className={cn(
-              "inline-block w-4 h-4 rounded-full border-2 animate-spin shrink-0",
-              spinnerBorderClass
+          <>
+            <span
+              className={cn(
+                "inline-block w-4 h-4 rounded-full border-2 animate-spin shrink-0",
+                spinnerBorderClass
+              )}
+              aria-hidden="true"
+            />
+            {children ? (
+              <span className="opacity-90">{children}</span>
+            ) : (
+              <span className="sr-only">جاري التحميل...</span>
             )}
-            aria-label="جاري التحميل"
-          />
+          </>
         ) : (
           children
         )}

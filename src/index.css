@@ -120,10 +120,10 @@ input, textarea, select {
   direction: rtl;
 }
 
-/* Native-Like Smooth Page Transition Animation
- * - لا تبدأ الصفحة من opacity: 0 حتى لا تظهر خلفية بيضاء فارغة لحظة الانتقال.
- * - بدون forwards / will-change دائم: انتهاء الحركة يزيل transform فلا يتحول الغلاف
- *   إلى containing block يكسر العناصر الثابتة (الهيدر والشريط السفلي).
+/* Native-Like Smooth Page Transition & App-Wide Animation System
+ * - حركة ناعمة وطبيعية بدون وميض وبدون فراغ أبيض.
+ * - لا تؤثر على layout أو تكسر العناصر الثابتة (Fixed / Sticky).
+ * - متوافقة تماماً مع معيار تقليل الحركة (prefers-reduced-motion).
  */
 .page-transition-wrapper {
   animation: pageSmoothEnter 0.22s cubic-bezier(0.22, 1, 0.36, 1);
@@ -138,5 +138,47 @@ input, textarea, select {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+/* App-wide Smooth Animations & Transitions */
+.animate-fade-in {
+  animation: appFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes appFadeIn {
+  from {
+    opacity: 0.7;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal and Bottom Sheet unified entrance */
+.animate-sheet-up {
+  animation: appSheetSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes appSheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Reduced Motion Safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
