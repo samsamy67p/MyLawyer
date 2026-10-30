@@ -34,7 +34,7 @@ export default function AccountScreen({
 
   return (
     <div className="account-screen-layout">
-      <Header title="الحساب الشخصي" />
+      <Header title="الحساب" />
 
       <main className="account-main-content">
         {/* User Profile Card */}

@@ -111,7 +111,7 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
         return 'الحساب';
       case 'home':
       default:
-        return 'MyLawyer';
+        return 'الرئيسية';
     }
   };
 
