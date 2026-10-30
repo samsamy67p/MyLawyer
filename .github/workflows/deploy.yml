@@ -30,6 +30,7 @@ jobs:
   # -----------------------------------------------------------
   quality_and_build:
     name: Code Quality, Automated Tests & Build
+    if: github.event_name != 'workflow_dispatch' || inputs.action != 'rollback'
     runs-on: [self-hosted, Linux, vps]
     steps:
       - name: Checkout Code
