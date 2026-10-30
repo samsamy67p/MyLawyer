@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "migrate": "tsx src/database/migrate.ts",
+    "migrate": "node dist/database/migrate.js",
+    "migrate:dev": "tsx src/database/migrate.ts",
     "lint": "oxlint"
   },
   "dependencies": {

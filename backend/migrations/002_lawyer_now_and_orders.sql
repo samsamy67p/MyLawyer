@@ -69,6 +69,14 @@ CREATE TABLE IF NOT EXISTS order_status_logs (
 CREATE INDEX IF NOT EXISTS idx_order_logs_order ON order_status_logs(order_id, created_at ASC);
 
 -- 4. Automatic Updated At Timestamp Trigger for service_orders
+CREATE OR REPLACE FUNCTION update_timestamp_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 DROP TRIGGER IF EXISTS trg_service_orders_updated_at ON service_orders;
 CREATE TRIGGER trg_service_orders_updated_at
 BEFORE UPDATE ON service_orders
