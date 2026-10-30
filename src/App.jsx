@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, lazy } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
@@ -7,8 +7,9 @@ import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { safeJsonParse } from './lib/security';
 import { tokenStorage, authApi } from './services/apiClient';
 import OfflineView from './components/feedback/OfflineView';
-import ScreenErrorBoundary from './components/feedback/ScreenErrorBoundary';
+import ScreenWrapper from './components/feedback/ScreenWrapper';
 import InteractiveSplashScreen from './components/splash/InteractiveSplashScreen';
+import { GUEST_CLIENT_USER, DEMO_LAWYER_USER } from './constants/demoUsers';
 
 import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
@@ -203,81 +204,67 @@ function AppNavigationContent({
   // 1. شاشة تسجيل الدخول
   if (currentPath === ROUTES.LOGIN) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
         <LoginScreen
           onLoginSuccess={handleLoginSuccess}
           onGuestLogin={() => {
-            const guest = { id: 'guest', phone: '01000000000', role: 'client', status: 'active', isGuest: true };
             try {
-              localStorage.setItem('mylawyer_user', JSON.stringify(guest));
+              localStorage.setItem('mylawyer_user', JSON.stringify(GUEST_CLIENT_USER));
             } catch (e) {
               console.warn(e);
             }
-            setCurrentUser(guest);
+            setCurrentUser(GUEST_CLIENT_USER);
             transitionTo(ROUTES.HOME, { replace: true });
           }}
           onLawyerLogin={() => {
-            const demoLawyer = {
-              id: 'demo_lawyer_01',
-              fullName: 'المستشار / أحمد فهمي',
-              phone: '01012345678',
-              email: 'lawyer.demo@mylawyer.eg',
-              role: 'lawyer',
-              status: 'active',
-              isDemo: true,
-              rating: 4.95,
-              casesCount: 142,
-              specialties: ['جنائي', 'مدني', 'شركات'],
-              officeAddress: 'شارع جامعة الدول العربية، المهندسين، الجيزة',
-            };
             try {
-              localStorage.setItem('mylawyer_user', JSON.stringify(demoLawyer));
+              localStorage.setItem('mylawyer_user', JSON.stringify(DEMO_LAWYER_USER));
             } catch (e) {
               console.warn(e);
             }
-            setCurrentUser(demoLawyer);
+            setCurrentUser(DEMO_LAWYER_USER);
             transitionTo(ROUTES.LAWYER_DASHBOARD, { replace: true });
           }}
           onNavigateRegister={() => transitionTo(ROUTES.REGISTER)}
           onNavigateForgot={() => transitionTo(ROUTES.FORGOT_PASSWORD)}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
   // 2. شاشة إنشاء حساب جديد
   if (currentPath === ROUTES.REGISTER) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
         <RegisterScreen
           onRegisterSuccess={handleRegisterSuccess}
           onNavigateLogin={() => transitionTo(ROUTES.LOGIN)}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
   // 3. شاشة تأكيد البريد OTP
   if (currentPath === ROUTES.VERIFY_OTP) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
         <OtpVerificationScreen
           email={pendingVerifyEmail || currentUser?.email || ''}
           onVerified={handleOtpVerified}
           onBack={() => transitionTo(ROUTES.REGISTER)}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
   // 4. شاشة نسيت كلمة المرور
   if (currentPath === ROUTES.FORGOT_PASSWORD) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
         <ForgotPasswordScreen
           onNavigateLogin={() => transitionTo(ROUTES.LOGIN)}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
@@ -288,24 +275,24 @@ function AppNavigationContent({
     (currentUser?.role === 'lawyer' && currentUser?.status !== 'active')
   ) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
         <AccountStatusScreen
           user={currentUser}
           onLogout={handleLogout}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
   // 6. لوحة المحامي المعتمد
   if (currentPath === ROUTES.LAWYER_DASHBOARD || (currentUser?.role === 'lawyer' && currentUser?.status === 'active')) {
     return (
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LAWYER_DASHBOARD)}>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LAWYER_DASHBOARD)}>
         <LawyerDashboardScreen
           user={currentUser}
           onLogout={handleLogout}
         />
-      </ScreenErrorBoundary>
+      </ScreenWrapper>
     );
   }
 
@@ -316,157 +303,141 @@ function AppNavigationContent({
       return null;
     }
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
-          <LocationScreen
-            onLocationSelect={(coords, address) => {
-              setPendingLocation({ coords, address });
-              transitionTo(ROUTES.LOCATION_MAP);
-            }}
-            onViewOnMap={(coords, address) => {
-              setPendingLocation({ coords, address });
-              transitionTo(ROUTES.LOCATION_MAP);
-            }}
-            onLocationConfirmed={(coords, address) => {
-              handleLocationSave(coords, address);
-            }}
-            onSkip={handleLocationSkip}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.LOGIN)}>
+        <LocationScreen
+          onLocationSelect={(coords, address) => {
+            setPendingLocation({ coords, address });
+            transitionTo(ROUTES.LOCATION_MAP);
+          }}
+          onViewOnMap={(coords, address) => {
+            setPendingLocation({ coords, address });
+            transitionTo(ROUTES.LOCATION_MAP);
+          }}
+          onLocationConfirmed={(coords, address) => {
+            handleLocationSave(coords, address);
+          }}
+          onSkip={handleLocationSkip}
+        />
+      </ScreenWrapper>
     );
   }
 
   if (currentPath === ROUTES.LOCATION_MAP) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <MapScreen
-            userCoords={pendingLocation?.coords || userLocation?.coords}
-            initialCoords={pendingLocation?.coords || userLocation?.coords}
-            addressTitle={pendingLocation?.address || userLocation?.address}
-            initialAddress={pendingLocation?.address || userLocation?.address}
-            onConfirmLocation={(coords, address) => {
-              handleLocationSave(coords, address);
-            }}
-            onBack={() => transitionTo(ROUTES.HOME)}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <MapScreen
+          userCoords={pendingLocation?.coords || userLocation?.coords}
+          initialCoords={pendingLocation?.coords || userLocation?.coords}
+          addressTitle={pendingLocation?.address || userLocation?.address}
+          initialAddress={pendingLocation?.address || userLocation?.address}
+          onConfirmLocation={(coords, address) => {
+            handleLocationSave(coords, address);
+          }}
+          onBack={() => transitionTo(ROUTES.HOME)}
+        />
+      </ScreenWrapper>
     );
   }
 
   // 8. رحلة "محاميك حالاً"
   if (currentPath === ROUTES.LAWYER_NOW_REQUEST) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <LawyerNowRequestScreen
-            key={`lawyer-req-${requestSessionId}`}
-            initialDetails={lawyerNowRequestDetails}
-            onBack={() => transitionTo(ROUTES.HOME)}
-            onProceedToMap={(details) => {
-              setLawyerNowRequestDetails(details);
-              transitionTo(ROUTES.LAWYER_NOW_MAP);
-            }}
-            onSubmitDetails={(details) => {
-              setLawyerNowRequestDetails(details);
-              transitionTo(ROUTES.LAWYER_NOW_MAP);
-            }}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <LawyerNowRequestScreen
+          key={`lawyer-req-${requestSessionId}`}
+          initialDetails={lawyerNowRequestDetails}
+          onBack={() => transitionTo(ROUTES.HOME)}
+          onProceedToMap={(details) => {
+            setLawyerNowRequestDetails(details);
+            transitionTo(ROUTES.LAWYER_NOW_MAP);
+          }}
+          onSubmitDetails={(details) => {
+            setLawyerNowRequestDetails(details);
+            transitionTo(ROUTES.LAWYER_NOW_MAP);
+          }}
+        />
+      </ScreenWrapper>
     );
   }
 
   if (currentPath === ROUTES.LAWYER_NOW_MAP) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <LawyerNowScreen
-            key={`lawyer-map-${requestSessionId}`}
-            userCoords={userLocation?.coords}
-            userAddress={userLocation?.address}
-            requestDetails={lawyerNowRequestDetails}
-            onBack={() => transitionTo(ROUTES.LAWYER_NOW_REQUEST)}
-            onModalStateChange={(isOpen, dismissFn) => {
-              if (isOpen && dismissFn) {
-                registerModalDismiss?.(dismissFn);
-              } else {
-                unregisterModalDismiss?.();
-              }
-            }}
-            registerModalDismiss={registerModalDismiss}
-            unregisterModalDismiss={unregisterModalDismiss}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <LawyerNowScreen
+          key={`lawyer-map-${requestSessionId}`}
+          userCoords={userLocation?.coords}
+          userAddress={userLocation?.address}
+          requestDetails={lawyerNowRequestDetails}
+          onBack={() => transitionTo(ROUTES.LAWYER_NOW_REQUEST)}
+          onModalStateChange={(isOpen, dismissFn) => {
+            if (isOpen && dismissFn) {
+              registerModalDismiss?.(dismissFn);
+            } else {
+              unregisterModalDismiss?.();
+            }
+          }}
+          registerModalDismiss={registerModalDismiss}
+          unregisterModalDismiss={unregisterModalDismiss}
+        />
+      </ScreenWrapper>
     );
   }
 
   // 9. التبويبات الرئيسية (الطلبات، المحفظة، الحساب، الرئيسية)
   if (currentPath === ROUTES.ORDERS) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <OrdersScreen
-            activeNavTab="orders"
-            onNavTabChange={handleNavTabChange}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <OrdersScreen
+          activeNavTab="orders"
+          onNavTabChange={handleNavTabChange}
+        />
+      </ScreenWrapper>
     );
   }
 
   if (currentPath === ROUTES.WALLET) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <WalletScreen
-            activeNavTab="wallet"
-            onNavTabChange={handleNavTabChange}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <WalletScreen
+          activeNavTab="wallet"
+          onNavTabChange={handleNavTabChange}
+        />
+      </ScreenWrapper>
     );
   }
 
   if (currentPath === ROUTES.ACCOUNT) {
     return (
-      <Suspense fallback={null}>
-        <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-          <AccountScreen
-            currentUser={currentUser}
-            userLocation={userLocation}
-            onLogout={handleLogout}
-            activeNavTab="account"
-            onNavTabChange={handleNavTabChange}
-          />
-        </ScreenErrorBoundary>
-      </Suspense>
+      <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+        <AccountScreen
+          currentUser={currentUser}
+          userLocation={userLocation}
+          onLogout={handleLogout}
+          activeNavTab="account"
+          onNavTabChange={handleNavTabChange}
+        />
+      </ScreenWrapper>
     );
   }
 
   // الافتراضي: الشاشة الرئيسية للموكل
   return (
-    <Suspense fallback={null}>
-      <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
-        <HomeScreen
-          userLocation={userLocation}
-          onChangeLocation={() => {
-            setPendingLocation(userLocation);
-            transitionTo(ROUTES.LOCATION_MAP);
-          }}
-          onOpenLiveMap={() => {
-            setRequestSessionId((prev) => prev + 1);
-            setLawyerNowRequestDetails(null);
-            transitionTo(ROUTES.LAWYER_NOW_REQUEST);
-          }}
-          activeNavTab="home"
-          onNavTabChange={handleNavTabChange}
-        />
-      </ScreenErrorBoundary>
-    </Suspense>
+    <ScreenWrapper onReset={() => transitionTo(ROUTES.HOME)}>
+      <HomeScreen
+        userLocation={userLocation}
+        onChangeLocation={() => {
+          setPendingLocation(userLocation);
+          transitionTo(ROUTES.LOCATION_MAP);
+        }}
+        onOpenLiveMap={() => {
+          setRequestSessionId((prev) => prev + 1);
+          setLawyerNowRequestDetails(null);
+          transitionTo(ROUTES.LAWYER_NOW_REQUEST);
+        }}
+        activeNavTab="home"
+        onNavTabChange={handleNavTabChange}
+      />
+    </ScreenWrapper>
   );
 }
 

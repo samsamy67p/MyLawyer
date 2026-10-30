@@ -82,18 +82,23 @@ my_lawyer/
     │       └── undraw_transfer-money_5wd8.svg    # رسمة شاشة ما قبل تأكيد الدفع («تأكيد الطلب والدفع»)
     ├── components/
     │   ├── common/
-    │   │   ├── LawyerProfileModal.jsx            # بطاقة ملف المحامي السفلية (50vh، قابلة للسحب للإغلاق، بدون بلور)
+    │   │   ├── LawyerProfileModal.jsx            # بطاقة ملف المحامي السفلية (منسقة وقابلة للسحب للإغلاق)
     │   │   ├── LawyerProfileModal.css            # تنسيقات بطاقة ملف المحامي ومحاذاة RTL لليمين
+    │   │   ├── LawyerOrderStages.jsx             # مراحل طلب المحامي المفصولة (تقييم السعر، الجاهزية، الانتظار، القرار)
     │   │   ├── ServiceRow.jsx                    # صف الخدمة الموحد في الصفحة الرئيسية
     │   │   └── ServiceRow.css                    # تنسيقات صف الخدمة
     │   ├── feedback/
     │   │   ├── OfflineView.jsx                   # شاشة انقطاع الاتصال بالإنترنت مع زر إعادة المحاولة
     │   │   ├── OfflineView.css
+    │   │   ├── ScreenErrorBoundary.jsx           # حاجز أخطاء واجهات الشاشات
     │   │   ├── ScreenLoader.jsx                  # مؤشر التحميل الانتقالي بين الشاشات
-    │   │   └── ScreenLoader.css
+    │   │   ├── ScreenLoader.css
+    │   │   └── ScreenWrapper.jsx                 # غلاف موحد وآمن للشاشات يدمج Suspense مع Error Boundary
     │   ├── layout/
     │   │   ├── Header.jsx                        # الهيدر الرئيسي (MyLawyer في المنتصف، بحث يمين، جرس يسار)
-    │   │   └── Header.css
+    │   │   ├── Header.css
+    │   │   ├── BottomNav.jsx                     # شريط التنقل السفلي الموحد للموكل والمحامي
+    │   │   └── BottomNav.css
     │   ├── map/
     │   │   ├── MapActionController.jsx           # التحكم في كاميرا Leaflet، التوسيط فوق البطاقة، و ResizeObserver
     │   │   ├── MapMarkerIcons.js                 # أيقونات دبابيس الخريطة (دبوس المستخدم الأحمر ودبوس المحامي المتوهج)
@@ -103,6 +108,7 @@ my_lawyer/
     │       ├── Button.jsx                        # زر موحد بحواف 7px وحالات تحميل وأنماط (primary, secondary, outline)
     │       └── Input.jsx                         # حقل إدخال موحد بحواف 7px ودعم الأيقونات والعناصر الجانبية
     ├── constants/
+    │   ├── demoUsers.js                          # حسابات تجريبية للمعاينة السريعة (الموكل الزائر ومحامي الديمو)
     │   ├── geo.js                                # حدود مصر (EGYPT_BOUNDS, EGYPT_MAX_BOUNDS) ودوال التحقق من الإحداثيات
     │   └── theme.js                              # ثوابت الألوان وإعدادات الهوية (APP_CONFIG, THEME_COLORS)
     ├── hooks/
@@ -110,6 +116,7 @@ my_lawyer/
     │   ├── useNearbyLawyersRoute.js              # هوك مشترك لجلب المحامين المربوطين بالطرق وحساب المسار الفعلي
     │   └── useNetworkStatus.js                   # هوك مراقبة حالة الشبكة عبر @capacitor/network
     ├── lib/
+    │   ├── security.js                           # أدوات الأمان وفلترة النصوص وتطهير الروابط وJSON الآمن
     │   └── utils.js                              # دالة cn لدمج كلاسات Tailwind عبر clsx و tailwind-merge
     ├── router/
     │   ├── routes.js                             # تعريف مسارات التطبيق المعتمدة (ROUTES) وتطبيع الروابط والتحقق من صحتها
@@ -122,8 +129,12 @@ my_lawyer/
     │   │   ├── AccountScreen.jsx                 # شاشة الحساب الشخصي وإعدادات التنبيهات والخصوصية وتسجيل الخروج
     │   │   └── AccountScreen.css
     │   ├── Auth/
-    │   │   ├── LoginScreen.jsx                   # شاشة تسجيل الدخول والدخول كزائر
-    │   │   └── LoginScreen.css
+    │   │   ├── LoginScreen.jsx                   # شاشة تسجيل الدخول ودخول الزائر ودخول المحامي التجريبي
+    │   │   ├── LoginScreen.css
+    │   │   ├── RegisterScreen.jsx                # شاشة تسجيل حساب جديد
+    │   │   ├── OtpVerificationScreen.jsx         # شاشة التحقق من كود الـ OTP
+    │   │   ├── AccountStatusScreen.jsx           # شاشة حالة الحساب المعلق أو قيد المراجعة للمحامي
+    │   │   └── ForgotPasswordScreen.jsx          # شاشة استعادة كلمة المرور
     │   ├── Home/
     │   │   ├── HomeScreen.jsx                    # الشاشة الرئيسية وعرض شريط الموقع وقائمة الخدمات الفورية
     │   │   └── HomeScreen.css
@@ -131,7 +142,7 @@ my_lawyer/
     │   │   ├── LocationScreen.jsx                # شاشة التقاط إحداثيات الـ GPS وتحويلها لعنوان نصي
     │   │   └── LocationScreen.css
     │   ├── Map/
-    │   │   ├── MapScreen.jsx                     # شاشة تأكيد موقع المستخدم على الخريطة
+    │   │   ├── MapScreen.jsx                     # شاشة تأكيد موقع المستخدم على الخريطة مع تحديث مباشر للموقع
     │   │   └── MapScreen.css
     │   ├── Orders/
     │   │   ├── OrdersScreen.jsx                  # شاشة الطلبات والاستشارات الجارية والسابقة وفلاتر الحالات
@@ -139,6 +150,15 @@ my_lawyer/
     │   ├── Wallet/
     │   │   ├── WalletScreen.jsx                  # شاشة المحفظة والرصيد المتاح وسجل المعاملات
     │   │   └── WalletScreen.css
+    │   ├── Lawyer/
+    │   │   ├── LawyerDashboardScreen.jsx         # شاشة لوحة تحكم المحامي ومنظم التبويبات المتناسق مع تصميم الموكل
+    │   │   ├── tabs/
+    │   │   │   ├── LawyerHomeTab.jsx             # تبويب رئيسية المحامي (كارت تعريفي، حالة التوفر، إحصائيات سريعة، إجراءات)
+    │   │   │   ├── LawyerOrdersTab.jsx           # تبويب طلبات المحامي الواردة مع فلاتر الحالات
+    │   │   │   ├── LawyerWalletTab.jsx           # تبويب محفظة أتعاب المحامي وإمكانية سحب الأرباح
+    │   │   │   └── LawyerAccountTab.jsx          # تبويب حساب المحامي والمكتب وساعات العمل
+    │   │   └── components/
+    │   │       └── LawyerWithdrawModal.jsx       # نافذة طلب سحب الأرباح للمحامي (فودافون كاش / إنستاباي / بنكي)
     │   └── LawyerNow/
     │       ├── LawyerNowRequestScreen.jsx        # شاشة "ما مشكلتك" (خطوة 1: اختيار الخدمة، خطوة 2: وصف المشكلة)
     │       ├── LawyerNowRequestScreen.css
@@ -148,11 +168,14 @@ my_lawyer/
     │           ├── LawyerEnRouteSheetContent.jsx # محتوى البطاقة النهائية لتتبع المحامي في الطريق وأزرار الاتصال والمحادثة
     │           └── LawyerNowPaymentOverlay.jsx   # شاشة الدفع وتأكيد الرسوم المقدرة
     ├── services/
-    │   ├── lawyerService.js                      # توليد المحامين المرشحين وربطهم بالطرق وترتيبهم (rankLawyersBySuitability) واختيار المحامي البديل (selectNextAlternativeLawyer) وتقييم رسوم الخدمة
+    │   ├── apiClient.js                          # عميل الـ API الموحد لإدارة التوكن وجلسات المستخدم
+    │   ├── lawyerService.js                      # توليد المحامين المرشحين وربطهم بالطرق وترتيبهم واختيار المحامي البديل وتقييم الرسوم
     │   └── mapService.js                         # محرك التوجيه البري (Valhalla/OSRM)، فك ترميز Polyline6، والـ LRU Cache
     └── tests/
         ├── mapAndRouting.test.js                 # 20 اختباراً آلياً للتحقق من الإحداثيات والمسارات الساحلية وترتيب المحامين البدلاء وآلة حالة الطلب
-        └── routing.test.js                       # 4 اختبارات آلية للتحقق من سلامة نظام التوجيه وتطبيع المسارات ومنع التكرار
+        ├── routing.test.js                       # 4 اختبارات آلية للتحقق من سلامة نظام التوجيه وتطبيع المسارات ومنع التكرار
+        ├── security.test.js                      # 5 اختبارات للأمان وتطهير المدخلات وفحص الهواتف المصرية
+        └── splash.test.js                        # 5 اختبارات لشاشة البداية الحركية وتوقيتاتها المزامنة
 ```
 
 ---
