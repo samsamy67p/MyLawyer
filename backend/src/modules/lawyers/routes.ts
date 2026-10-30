@@ -69,7 +69,7 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     }
 
     // Query ONLY approved, active, online lawyers with valid Egyptian coordinates
-    // Haversine formula calculation directly in PostgreSQL
+    // Haversine formula calculation directly in PostgreSQL with explicit float8 casts
     const sql = `
       SELECT 
         u.id as user_id,
@@ -88,11 +88,11 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
         lp.is_available,
         lp.last_active_at,
         (
-          6371 * acos(
-            least(1.0, greatest(-1.0,
-              cos(radians($1)) * cos(radians(lp.latitude)) *
-              cos(radians(lp.longitude) - radians($2)) +
-              sin(radians($1)) * sin(radians(lp.latitude))
+          6371.0 * acos(
+            least(1.0::float8, greatest(-1.0::float8,
+              cos(radians($1::float8)) * cos(radians(lp.latitude::float8)) *
+              cos(radians(lp.longitude::float8) - radians($2::float8)) +
+              sin(radians($1::float8)) * sin(radians(lp.latitude::float8))
             ))
           )
         ) AS distance_km
@@ -143,6 +143,7 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({
         success: false,
         error: 'حدث خطأ أثناء البحث عن المحامين المتاحين',
+        detail: err?.message,
       });
     }
   });
