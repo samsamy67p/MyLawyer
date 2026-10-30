@@ -2,6 +2,10 @@
   flex-shrink: 0;
   width: 100%;
   height: calc(64px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  z-index: 40;
+  box-sizing: border-box;
   background-color: #FFFFFF;
   border-top: 1px solid #E2E8F0;
   border-top-left-radius: 5px;

@@ -186,3 +186,4 @@ npm run migrate
    - أنشئ ملفاً جديداً في `backend/migrations/` بالترقيم المتسلسل (مثال: `002_add_orders_table.sql`).
    - اكتب أوامر SQL باستخدام صيغ متسامحة مع التكرار (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`).
    - شغّل أمر `npm run migrate`؛ سيقوم السكربت بفحص جدول `schema_migrations` وتطبيق الملف الجديد تلقائياً داخل Transaction موثوقة.
+

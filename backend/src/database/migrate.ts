@@ -68,3 +68,4 @@ runMigrations().catch((err) => {
   console.error('Fatal Migration Error:', err);
   process.exit(1);
 });
+

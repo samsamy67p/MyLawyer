@@ -150,3 +150,4 @@ npx cap open ios
    - ضبط `viewport-fit=cover` و `user-scalable=no` في `index.html`.
 3. **حماية اتصالات الشبكة الصادرة:**
    - تفعيل HTTPS لجميع الاتصالات الخارجية والتأكد من مطابقة اشتراطات App Transport Security (ATS) في iOS.
+

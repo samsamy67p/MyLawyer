@@ -196,3 +196,4 @@ find "$BACKUP_DIR" -type f -mtime +14 -delete
 ```bash
 pg_restore -U mylawyer_user -d mylawyer_prod -v -c /var/www/mylawyer/backups/db_YYYYMMDD_HHMMSS.dump
 ```
+
