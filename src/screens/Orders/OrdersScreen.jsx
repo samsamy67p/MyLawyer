@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Phone,
@@ -15,57 +15,42 @@ import {
   Clock,
   Ban,
   FileCheck,
+  Loader2,
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
+import { ordersApi } from '../../services/apiClient';
 import emptyOrdersIllustration from '../../assets/undraw_done_erdp.svg';
 import './OrdersScreen.css';
 
-const CLIENT_ORDERS_DATA = [
-  {
-    id: 'ORD-8921',
-    serviceTitle: 'محاميك حالاً',
-    lawyerName: 'أ/ كريم الديب',
-    lawyerPhone: '01012345678',
-    specialty: 'حضور فوري وتحرير محضر إثبات حالة',
-    clientChoice: 'قسم شرطة الدقي — تحرير محضر إثبات حالة',
-    problemDescription: 'وقوع خلاف تجاري في المعرض ومحتاج حضور محامي فوري بالقسم لإنهاء المحضر والصلح.',
-    status: 'ACTIVE',
-    statusLabel: 'جاري التنفيذ',
-    date: 'اليوم، 01:30 م',
-    price: 350,
-  },
-  {
-    id: 'ORD-7612',
-    serviceTitle: 'محاميك حالاً',
-    lawyerName: 'أ/ سارة المهدي',
-    lawyerPhone: '01123456789',
-    specialty: 'حضور تحقيق عاجل بالنيابة',
-    clientChoice: 'نيابة العجوزة — تحقيق عاجل وطلب إخلاء سبيل',
-    problemDescription: 'حضور جلسة تحقيق صباحية في نيابة العجوزة وتقديم أوراق الدفاع وطلب الإفراج.',
-    status: 'COMPLETED',
-    statusLabel: 'مكتمل بنجاح',
-    date: '28 أكتوبر 2026',
-    price: 600,
-  },
-  {
-    id: 'ORD-6401',
-    serviceTitle: 'محاميك حالاً',
-    lawyerName: 'أ/ تامر الشناوي',
-    lawyerPhone: '01234567890',
-    specialty: 'إنهاء إجراء وتوثيق رسمي بالشهر العقاري',
-    clientChoice: 'فرع توثيق الدقي — توثيق عقد وإصدار توكيل',
-    problemDescription: 'إنهاء إجراءات تسجيل عقد وكالة تجارية واستخراج صورة رسمية موثقة.',
-    status: 'COMPLETED',
-    statusLabel: 'مكتمل بنجاح',
-    date: '24 أكتوبر 2026',
-    price: 500,
-  },
-];
-
 export default function OrdersScreen({ activeNavTab = 'orders', onNavTabChange }) {
   const [filter, setFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
-  const [ordersList] = useState(CLIENT_ORDERS_DATA);
+  const [ordersList, setOrdersList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    ordersApi.getOrders('ALL')
+      .then((res) => {
+        if (isMounted && res && res.success && Array.isArray(res.data)) {
+          setOrdersList(res.data);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setOrdersList([]);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredOrders = ordersList.filter((order) => {
     if (filter === 'ALL') return true;
@@ -310,7 +295,12 @@ export default function OrdersScreen({ activeNavTab = 'orders', onNavTabChange }
             </div>
           ))}
 
-          {filteredOrders.length === 0 && (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center text-center py-12 px-4 select-none my-auto">
+              <Loader2 size={26} className="animate-spin text-[#1D4ED8] mb-3" />
+              <p className="text-sm font-semibold text-slate-500 m-0">جاري تحميل سجل الطلبات...</p>
+            </div>
+          ) : filteredOrders.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-6 px-4 select-none my-auto">
               <img
                 src={emptyOrdersIllustration}
@@ -321,7 +311,7 @@ export default function OrdersScreen({ activeNavTab = 'orders', onNavTabChange }
                 لا توجد طلبات في هذا القسم حالياً
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </main>
 

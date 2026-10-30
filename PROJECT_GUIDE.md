@@ -66,11 +66,11 @@ my_lawyer/
 │   ├── CI_CD_AND_DEPLOYMENT_GUIDE.md             # دليل دورة التطوير والنشر التلقائي الذري وإدارة الإصدارات
 │   └── MAPS_PRODUCTION_INFRASTRUCTURE.md         # توثيق تشغيل خادم الخرائط للإنتاج التجاري
 ├── backend/
-│   ├── migrations/                               # ترحيلات SQL المرقمة (001_initial_schema.sql)
+│   ├── migrations/                               # ترحيلات SQL المرقمة (001_initial_schema.sql, 002_lawyer_now_and_orders.sql)
 │   ├── src/
 │   │   ├── config/                               # إعدادات البيئة
 │   │   ├── database/                             # مجمع pg ومحرك الترحيل (migrate.ts)
-│   │   ├── modules/                              # وحدات auth, users, lawyers, admin
+│   │   ├── modules/                              # وحدات auth, users, lawyers, orders, admin
 │   │   ├── services/                             # خدمات البريد والتشفير
 │   │   ├── utils/                                # دوال الأمان والتحقق
 │   │   ├── app.ts                                # إعداد تطبيق Fastify والحماية

@@ -19,27 +19,144 @@ if (!fs.existsSync(config.privateStoragePath)) {
   fs.mkdirSync(config.privateStoragePath, { recursive: true });
 }
 
+interface AuthenticatedLawyer {
+  userId: string;
+  role: string;
+}
+
 export async function lawyerRoutes(fastify: FastifyInstance) {
-  // Authentication hook
-  fastify.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
+  // Helper authentication hook for protected lawyer routes
+  const requireLawyerAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       await request.jwtVerify();
+      const { role } = request.user as AuthenticatedLawyer;
+      if (role !== 'lawyer' && role !== 'admin') {
+        return reply.status(403).send({ success: false, error: 'هذا المسار مخصص للمحامين فقط' });
+      }
     } catch {
       return reply.status(401).send({ success: false, error: 'غير مصرح: يرجى تسجيل الدخول' });
     }
+  };
+
+  // 1. GET /api/v1/lawyers/nearby (Open to clients & visitors for real nearby search)
+  fastify.get('/nearby', async (request: FastifyRequest, reply: FastifyReply) => {
+    const queryParams = request.query as {
+      lat?: string;
+      lon?: string;
+      radius_km?: string;
+      specialty?: string;
+    };
+
+    const userLat = parseFloat(queryParams.lat || '');
+    const userLon = parseFloat(queryParams.lon || '');
+    const radiusKm = Math.min(Math.max(parseFloat(queryParams.radius_km || '50') || 50, 1), 150);
+
+    // If client coordinates are missing or invalid
+    if (isNaN(userLat) || isNaN(userLon)) {
+      return reply.status(400).send({
+        success: false,
+        error: 'يجب توفير إحداثيات صالحة للبحث (lat و lon)',
+      });
+    }
+
+    // Egypt geographic boundary sanity check (22.0 to 31.8 N, 24.5 to 37.0 E)
+    if (userLat < 21.0 || userLat > 32.5 || userLon < 24.0 || userLon > 37.5) {
+      return reply.send({
+        success: true,
+        data: [],
+        message: 'الإحداثيات خارج نطاق تغطية جمهورية مصر العربية',
+      });
+    }
+
+    // Query ONLY approved, active, online lawyers with valid Egyptian coordinates
+    // Haversine formula calculation directly in PostgreSQL
+    const sql = `
+      SELECT 
+        u.id as user_id,
+        u.phone as lawyer_phone,
+        lp.id as profile_id,
+        lp.full_name,
+        lp.profile_photo_path,
+        lp.specialty,
+        lp.degree,
+        lp.rating,
+        lp.reviews_count,
+        lp.experience_years,
+        lp.bio,
+        lp.latitude,
+        lp.longitude,
+        lp.is_available,
+        lp.last_active_at,
+        (
+          6371 * acos(
+            least(1.0, greatest(-1.0,
+              cos(radians($1)) * cos(radians(lp.latitude)) *
+              cos(radians(lp.longitude) - radians($2)) +
+              sin(radians($1)) * sin(radians(lp.latitude))
+            ))
+          )
+        ) AS distance_km
+      FROM lawyer_profiles lp
+      JOIN users u ON lp.user_id = u.id
+      WHERE lp.approval_status = 'approved'
+        AND u.status = 'active'
+        AND lp.is_available = TRUE
+        AND lp.latitude IS NOT NULL
+        AND lp.longitude IS NOT NULL
+        AND lp.latitude BETWEEN 22.0 AND 31.8
+        AND lp.longitude BETWEEN 24.5 AND 37.0
+      ORDER BY distance_km ASC, lp.rating DESC
+      LIMIT 30;
+    `;
+
+    try {
+      const res = await query(sql, [userLat, userLon]);
+
+      // Filter by requested radius
+      const nearbyLawyers = res.rows
+        .filter((row) => Number(row.distance_km) <= radiusKm)
+        .map((lawyer) => ({
+          id: lawyer.user_id,
+          profileId: lawyer.profile_id,
+          userId: lawyer.user_id,
+          name: lawyer.full_name,
+          specialty: lawyer.specialty || 'محامٍ معتمد ومستشار قانوني',
+          degree: lawyer.degree || 'محامي استئناف',
+          rating: Number(lawyer.rating) || 5.0,
+          reviewsCount: Number(lawyer.reviews_count) || 0,
+          experienceYears: Number(lawyer.experience_years) || 5,
+          isOnline: lawyer.is_available === true,
+          phone: lawyer.lawyer_phone,
+          avatar: lawyer.profile_photo_path || null,
+          bio: lawyer.bio || '',
+          coordinates: [Number(lawyer.latitude), Number(lawyer.longitude)],
+          distanceKm: Number(Number(lawyer.distance_km).toFixed(2)),
+          lastActiveAt: lawyer.last_active_at,
+        }));
+
+      return reply.send({
+        success: true,
+        data: nearbyLawyers,
+      });
+    } catch (err: any) {
+      fastify.log.error(err, 'Error fetching nearby lawyers');
+      return reply.status(500).send({
+        success: false,
+        error: 'حدث خطأ أثناء البحث عن المحامين المتاحين',
+      });
+    }
   });
 
-  // GET /api/v1/lawyers/me
-  fastify.get('/me', async (request: FastifyRequest, reply: FastifyReply) => {
-    const { userId, role } = request.user as { userId: string; role: string };
-
-    if (role !== 'lawyer' && role !== 'admin') {
-      return reply.status(403).send({ success: false, error: 'هذا المسار مخصص للمحامين فقط' });
-    }
+  // 2. GET /api/v1/lawyers/me (Protected: Lawyer Profile)
+  fastify.get('/me', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request.user as AuthenticatedLawyer;
 
     const lawyerRes = await query(
       `SELECT lp.id as profile_id, lp.full_name, lp.profile_photo_path, lp.approval_status,
-              lp.syndicate_number, lp.bio, lp.submitted_at, lp.approved_at, lp.rejected_at, lp.rejection_reason,
+              lp.syndicate_number, lp.specialty, lp.degree, lp.rating, lp.reviews_count,
+              lp.experience_years, lp.bio, lp.is_available, lp.latitude, lp.longitude,
+              lp.last_location_updated_at, lp.last_active_at, lp.submitted_at, lp.approved_at,
+              lp.rejected_at, lp.rejection_reason,
               u.id as user_id, u.email, u.phone, u.status
        FROM lawyer_profiles lp
        JOIN users u ON lp.user_id = u.id
@@ -66,24 +183,89 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
       success: true,
       data: {
         profile: lawyer,
-        documents: docsRes.rows
+        documents: docsRes.rows,
       }
     });
   });
 
-  // POST /api/v1/lawyers/me/profile-photo (Public upload, avatars)
-  fastify.post('/me/profile-photo', async (request: FastifyRequest, reply: FastifyReply) => {
-    const { userId, role } = request.user as { userId: string; role: string };
-    if (role !== 'lawyer' && role !== 'admin') {
-      return reply.status(403).send({ success: false, error: 'مخصص للمحامين فقط' });
+  // 3. POST /api/v1/lawyers/me/availability (Protected: Toggle online/offline status)
+  fastify.post('/me/availability', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request.user as AuthenticatedLawyer;
+    const body = request.body as { isAvailable?: boolean };
+
+    const isAvailable = Boolean(body.isAvailable);
+
+    const updateRes = await query(
+      `UPDATE lawyer_profiles
+       SET is_available = $1, last_active_at = NOW(), updated_at = NOW()
+       WHERE user_id = $2
+       RETURNING id, is_available, last_active_at`,
+      [isAvailable, userId]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: 'ملف المحامي غير موجود' });
     }
+
+    return reply.send({
+      success: true,
+      message: isAvailable ? 'أنت الآن متاح لاستقبال الطلبات الفورية' : 'تم تحويل حالتك إلى غير متاح',
+      data: {
+        isAvailable: updateRes.rows[0].is_available,
+        lastActiveAt: updateRes.rows[0].last_active_at,
+      }
+    });
+  });
+
+  // 4. POST /api/v1/lawyers/me/location (Protected: Update live GPS coordinates)
+  fastify.post('/me/location', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request.user as AuthenticatedLawyer;
+    const body = request.body as { latitude?: number; longitude?: number };
+
+    const lat = Number(body.latitude);
+    const lon = Number(body.longitude);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      return reply.status(400).send({ success: false, error: 'إحداثيات الموقع غير صالحة' });
+    }
+
+    // Egypt bounds check
+    if (lat < 21.0 || lat > 32.5 || lon < 24.0 || lon > 37.5) {
+      return reply.status(400).send({ success: false, error: 'الإحداثيات تقع خارج جمهورية مصر العربية' });
+    }
+
+    const updateRes = await query(
+      `UPDATE lawyer_profiles
+       SET latitude = $1, longitude = $2, last_location_updated_at = NOW(), last_active_at = NOW(), updated_at = NOW()
+       WHERE user_id = $3
+       RETURNING id, latitude, longitude, last_location_updated_at`,
+      [lat, lon, userId]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: 'ملف المحامي غير موجود' });
+    }
+
+    return reply.send({
+      success: true,
+      message: 'تم تحديث موقعك الميداني بنجاح',
+      data: {
+        latitude: Number(updateRes.rows[0].latitude),
+        longitude: Number(updateRes.rows[0].longitude),
+        lastLocationUpdatedAt: updateRes.rows[0].last_location_updated_at,
+      }
+    });
+  });
+
+  // 5. POST /api/v1/lawyers/me/profile-photo (Protected: Avatars upload)
+  fastify.post('/me/profile-photo', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request.user as AuthenticatedLawyer;
 
     const data = await request.file();
     if (!data) {
       return reply.status(400).send({ success: false, error: 'لم يتم إرسال ملف الصورة' });
     }
 
-    // Validate mime type
     const allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedMime.includes(data.mimetype)) {
       return reply.status(400).send({ success: false, error: 'نوع الملف غير مدعوم، يرجى رفع صورة JPG أو PNG أو WEBP' });
@@ -93,10 +275,8 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     const filename = `avatar_${crypto.randomUUID()}${ext}`;
     const filePath = path.join(avatarsDir, filename);
 
-    // Stream to file
     await pipeline(data.file, fs.createWriteStream(filePath));
 
-    // Relative web accessible path
     const relativeWebPath = `/uploads/avatars/${filename}`;
 
     await query(
@@ -115,12 +295,9 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // POST /api/v1/lawyers/me/documents (Private upload, syndicate card)
-  fastify.post('/me/documents', async (request: FastifyRequest, reply: FastifyReply) => {
-    const { userId, role } = request.user as { userId: string; role: string };
-    if (role !== 'lawyer' && role !== 'admin') {
-      return reply.status(403).send({ success: false, error: 'مخصص للمحامين فقط' });
-    }
+  // 6. POST /api/v1/lawyers/me/documents (Protected: Syndicate card upload)
+  fastify.post('/me/documents', { preHandler: [requireLawyerAuth] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { userId } = request.user as AuthenticatedLawyer;
 
     const lawyerRes = await query('SELECT id FROM lawyer_profiles WHERE user_id = $1', [userId]);
     if (lawyerRes.rows.length === 0) {
@@ -142,14 +319,11 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     const secretStorageName = `doc_${crypto.randomBytes(24).toString('hex')}${ext}`;
     const secretStoragePath = path.join(config.privateStoragePath, secretStorageName);
 
-    // Stream file to private storage
     await pipeline(data.file, fs.createWriteStream(secretStoragePath));
 
     const stats = fs.statSync(secretStoragePath);
 
-    // Save record in database
     const docRes = await withTransaction(async (client) => {
-      // Mark previous syndicate cards as not current
       await client.query(
         `UPDATE lawyer_documents
          SET is_current = FALSE
@@ -173,9 +347,15 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // GET /api/v1/documents/:id (Secure private document download)
+  // 7. GET /api/v1/lawyers/documents/:id (Secure private document download)
   fastify.get('/documents/:id', async (request: FastifyRequest, reply: FastifyReply) => {
-    const { userId, role } = request.user as { userId: string; role: string };
+    try {
+      await request.jwtVerify();
+    } catch {
+      return reply.status(401).send({ success: false, error: 'غير مصرح: يرجى تسجيل الدخول' });
+    }
+
+    const { userId, role } = request.user as AuthenticatedLawyer;
     const { id } = request.params as { id: string };
 
     const docRes = await query(
@@ -192,7 +372,6 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
 
     const doc = docRes.rows[0];
 
-    // Authorization check: Must be the owner lawyer or an admin
     if (role !== 'admin' && doc.user_id !== userId) {
       return reply.status(403).send({ success: false, error: 'غير مصرح لك بعرض هذا المستند الخاص' });
     }
@@ -207,4 +386,3 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     return reply.send(fileStream);
   });
 }
-

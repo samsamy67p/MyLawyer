@@ -3,6 +3,7 @@ import {
   evaluateLawyerNowRequestFee,
   processLawyerNowPayment,
 } from '../services/lawyerService.js';
+import { ordersApi } from '../services/apiClient.js';
 
 export const DISPATCH_STAGES = {
   BROWSE: 'BROWSE',
@@ -412,6 +413,7 @@ export function useLawyerNowOrderFlow({
   const paymentAbortRef = useRef(null);
   const isPaymentInFlightRef = useRef(false);
   const flowSeqRef = useRef(0);
+  const createdOrderIdRef = useRef(null);
 
   const clearPendingTimer = useCallback(() => {
     if (timerRef.current) {
@@ -506,6 +508,24 @@ export function useLawyerNowOrderFlow({
           requestDetails,
         })
       );
+
+      // Persist order in backend database if user is authenticated
+      const targetLawyerId = lawyer.userId || lawyer.id;
+      if (targetLawyerId) {
+        ordersApi.createOrder({
+          lawyerId: targetLawyerId,
+          serviceTitle: requestDetails?.serviceTitle || requestDetails?.title || 'محاميك حالاً',
+          problemType: requestDetails?.selectedOption || requestDetails?.serviceType || 'طلب ميداني فوري',
+          problemDescription: requestDetails?.description || 'طلب خدمة محاميك حالاً الميدانية العاجلة',
+          clientLat: Array.isArray(lawyer.coords) ? lawyer.coords[0] : 30.0444,
+          clientLon: Array.isArray(lawyer.coords) ? lawyer.coords[1] : 31.2357,
+          price: evaluateLawyerNowRequestFee(lawyer, requestDetails),
+        }).then((res) => {
+          if (res?.data?.id) {
+            createdOrderIdRef.current = res.data.id;
+          }
+        }).catch(() => {});
+      }
 
       // Step 1: Wait for lawyer decision (~1.8s)
       // Step 2: Show Lawyer Decision card (Accepted or Rejected) with 3s countdown
@@ -711,6 +731,9 @@ export function useLawyerNowOrderFlow({
         paymentAbortRef.current = null;
 
         if (result && result.status === 'SUCCESS' && result.transactionId) {
+          if (createdOrderIdRef.current) {
+            ordersApi.confirmPayment(createdOrderIdRef.current).catch(() => {});
+          }
           setConfirmationCountdown(5);
           setOrderState((prev) =>
             transitionLawyerNowOrderState(prev, {

@@ -1,36 +1,75 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const getEnvVar = (name) => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta?.env?.[name]) {
+      return import.meta.env[name];
+    }
+    if (typeof process !== 'undefined' && process?.env?.[name]) {
+      return process.env[name];
+    }
+  } catch {
+    // ignore
+  }
+  return undefined;
+};
 
-// In-memory token storage (with safe fallback for Capacitor)
+const API_BASE_URL = getEnvVar('VITE_API_URL') || '/api/v1';
+
+// In-memory token storage (with safe fallback for Capacitor & Node.js test environments)
 let memoryAccessToken = null;
+let memoryRefreshToken = null;
+
+const getSafeStorage = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage;
+  }
+  if (typeof localStorage !== 'undefined') {
+    return localStorage;
+  }
+  return null;
+};
 
 export const tokenStorage = {
   getAccessToken: () => {
     if (memoryAccessToken) return memoryAccessToken;
-    return localStorage.getItem('mylawyer_access_token');
+    const storage = getSafeStorage();
+    return storage ? storage.getItem('mylawyer_access_token') : null;
   },
   setAccessToken: (token) => {
     memoryAccessToken = token;
-    if (token) {
-      localStorage.setItem('mylawyer_access_token', token);
-    } else {
-      localStorage.removeItem('mylawyer_access_token');
+    const storage = getSafeStorage();
+    if (storage) {
+      if (token) {
+        storage.setItem('mylawyer_access_token', token);
+      } else {
+        storage.removeItem('mylawyer_access_token');
+      }
     }
   },
   getRefreshToken: () => {
-    return localStorage.getItem('mylawyer_refresh_token');
+    if (memoryRefreshToken) return memoryRefreshToken;
+    const storage = getSafeStorage();
+    return storage ? storage.getItem('mylawyer_refresh_token') : null;
   },
   setRefreshToken: (token) => {
-    if (token) {
-      localStorage.setItem('mylawyer_refresh_token', token);
-    } else {
-      localStorage.removeItem('mylawyer_refresh_token');
+    memoryRefreshToken = token;
+    const storage = getSafeStorage();
+    if (storage) {
+      if (token) {
+        storage.setItem('mylawyer_refresh_token', token);
+      } else {
+        storage.removeItem('mylawyer_refresh_token');
+      }
     }
   },
   clearTokens: () => {
     memoryAccessToken = null;
-    localStorage.removeItem('mylawyer_access_token');
-    localStorage.removeItem('mylawyer_refresh_token');
-    localStorage.removeItem('mylawyer_user');
+    memoryRefreshToken = null;
+    const storage = getSafeStorage();
+    if (storage) {
+      storage.removeItem('mylawyer_access_token');
+      storage.removeItem('mylawyer_refresh_token');
+      storage.removeItem('mylawyer_user');
+    }
   }
 };
 
@@ -182,6 +221,25 @@ export const authApi = {
 export const lawyerApi = {
   getProfile: () => apiRequest('/lawyers/me'),
 
+  getNearbyLawyers: ({ lat, lon, radiusKm = 50, specialty } = {}) => {
+    const params = new URLSearchParams();
+    if (lat !== undefined && lat !== null) params.append('lat', lat);
+    if (lon !== undefined && lon !== null) params.append('lon', lon);
+    if (radiusKm) params.append('radius_km', radiusKm);
+    if (specialty) params.append('specialty', specialty);
+    return apiRequest(`/lawyers/nearby?${params.toString()}`);
+  },
+
+  updateAvailability: (isAvailable) => apiRequest('/lawyers/me/availability', {
+    method: 'POST',
+    body: JSON.stringify({ isAvailable }),
+  }),
+
+  updateLocation: (latitude, longitude) => apiRequest('/lawyers/me/location', {
+    method: 'POST',
+    body: JSON.stringify({ latitude, longitude }),
+  }),
+
   uploadProfilePhoto: (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -199,4 +257,40 @@ export const lawyerApi = {
       body: formData
     });
   }
+};
+
+export const ordersApi = {
+  createOrder: (payload) => apiRequest('/orders', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+
+  getOrders: (status = 'ALL') => {
+    const query = status && status !== 'ALL' ? `?status=${encodeURIComponent(status)}` : '';
+    return apiRequest(`/orders${query}`);
+  },
+
+  getOrderById: (orderId) => apiRequest(`/orders/${encodeURIComponent(orderId)}`),
+
+  acceptOrder: (orderId) => apiRequest(`/orders/${encodeURIComponent(orderId)}/accept`, {
+    method: 'POST',
+  }),
+
+  rejectOrder: (orderId, reason) => apiRequest(`/orders/${encodeURIComponent(orderId)}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  }),
+
+  confirmPayment: (orderId) => apiRequest(`/orders/${encodeURIComponent(orderId)}/confirm-payment`, {
+    method: 'POST',
+  }),
+
+  completeOrder: (orderId) => apiRequest(`/orders/${encodeURIComponent(orderId)}/complete`, {
+    method: 'POST',
+  }),
+
+  cancelOrder: (orderId, reason) => apiRequest(`/orders/${encodeURIComponent(orderId)}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  }),
 };

@@ -245,7 +245,111 @@
 
 ---
 
-## 5. وحدة الإدارة (`/admin`)
+### GET `/lawyers/nearby`
+- **الوصف:** البحث عن المحامين المعتمدين والمتاحين جغرافياً حول الموكل بالاعتماد على إحداثيات GPS وحساب المسافة بدقة عبر صيغة Haversine داخل PostgreSQL.
+- **الصلاحية:** متاح للموكلين والزوار (Public).
+- **المعلمات (Query Params):**
+  - `lat`: دائرة العرض لموقع المستخدم (مطلوب).
+  - `lon`: خط الطول لموقع المستخدم (مطلوب).
+  - `radius_km`: نطاق البحث بالكيلومتر (افتراضي 50 كم، حتى 150 كم).
+- **الشروط الصارمة للظهور:**
+  - `approval_status = 'approved'` (معتمد رسمياً).
+  - `users.status = 'active'` (حساب نشط وغير موقوف).
+  - `is_available = TRUE` (المحامي متصل ومتاح لاستقبال الطلبات).
+  - إحداثيات صحيحة تقع داخل حدود جمهورية مصر العربية.
+
+---
+
+### POST `/lawyers/me/availability`
+- **الوصف:** تبديل حالة اتصال وتواجد المحامي الميداني (متصل ومتاح / غير متاح) وتحديث توقيت آخر نشاط.
+- **الترويسات:** `Authorization: Bearer <lawyerAccessToken>`
+- **جسم الطلب (Body):**
+```json
+{
+  "isAvailable": true // أو false
+}
+```
+
+---
+
+### POST `/lawyers/me/location`
+- **الوصف:** بث وتحديث الإحداثيات الجغرافية الميدانية الحية للمحامي عبر الـ GPS.
+- **الترويسات:** `Authorization: Bearer <lawyerAccessToken>`
+- **جسم الطلب (Body):**
+```json
+{
+  "latitude": 30.0489000,
+  "longitude": 31.2385000
+}
+```
+
+---
+
+## 5. وحدة الطلبات والخدمات الميدانية (`/orders`)
+
+### POST `/orders`
+- **الوصف:** إنشاء طلب خدمة ميدانية جديد من الموكل وإسناده للمحامي المختار بحالة `PENDING`.
+- **الترويسات:** `Authorization: Bearer <clientAccessToken>`
+- **جسم الطلب (Body):**
+```json
+{
+  "lawyerId": "uuid-of-lawyer",
+  "serviceTitle": "محاميك حالاً: محاضر شرطة",
+  "problemType": "عمل محضر إثبات حالة بقسم الشرطة",
+  "problemDescription": "شرح تفصيلي للمشكلة والاحتياج لحضور فوري بالقسم",
+  "clientLat": 30.0444,
+  "clientLon": 31.2357,
+  "clientAddress": "شارع التحرير، الدقي، الجيزة",
+  "price": 350.00
+}
+```
+
+---
+
+### GET `/orders`
+- **الوصف:** استعراض سجل الطلبات للمستخدم الحالي (للموكل: طلباته الخاصة؛ وللمحامي: المهام المسندة إليه).
+- **الترويسات:** `Authorization: Bearer <accessToken>`
+- **المعلمات:** `?status=ALL` (أو `PENDING`, `ACCEPTED`, `ACTIVE`, `COMPLETED`, `CANCELLED`).
+
+---
+
+### GET `/orders/:id`
+- **الوصف:** جلب تفاصيل طلب محدد وسجل التغييرات الكامل للطلب مع التحقق من ملكية الطلب.
+- **الترويسات:** `Authorization: Bearer <accessToken>`
+
+---
+
+### POST `/orders/:id/accept`
+- **الوصف:** قبول المحامي المعني للطلب الوارد وتحويل حالته إلى `ACCEPTED`.
+- **الترويسات:** `Authorization: Bearer <lawyerAccessToken>`
+
+---
+
+### POST `/orders/:id/reject`
+- **الوصف:** اعتذار المحامي عن قبول الطلب مع تسجيل السبب وتحويل الحالة إلى `REJECTED`.
+- **الترويسات:** `Authorization: Bearer <lawyerAccessToken>`
+
+---
+
+### POST `/orders/:id/confirm-payment`
+- **الوصف:** تأكيد الموكل لسداد رسوم الخدمة وتحويل حالة الطلب إلى `ACTIVE` (جاري التنفيذ).
+- **الترويسات:** `Authorization: Bearer <clientAccessToken>`
+
+---
+
+### POST `/orders/:id/complete`
+- **الوصف:** إتمام المحامي للمهمة القانونية الميدانية بنجاح وتحويل الحالة إلى `COMPLETED`.
+- **الترويسات:** `Authorization: Bearer <lawyerAccessToken>`
+
+---
+
+### POST `/orders/:id/cancel`
+- **الوصف:** إلغاء الطلب من قبل الموكل أو المحامي قبل اكتماله مع تدوين السبب.
+- **الترويسات:** `Authorization: Bearer <accessToken>`
+
+---
+
+## 6. وحدة الإدارة (`/admin`)
 
 ### GET `/admin/lawyers/pending`
 - **الوصف:** استعراض طلبات المحامين الجدد المعلقة للمراجعة والمطابقة مع نقابة المحامين.

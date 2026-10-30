@@ -173,6 +173,33 @@ erDiagram
 - `admin_user_id` (UUID): معرف المشرف الذي اتخذ القرار.
 - `created_at` (TIMESTAMPTZ): التوقيت الزمني الدقيق للقرار.
 
+### 2.8 جدول طلبات الخدمات الميدانية الفورية (`service_orders`) — ترحيل 002
+- `id` (UUID): المفتاح الرئيسي المولد تلقائياً.
+- `order_number` (VARCHAR 32): رقم الطلب الفريد الموجه للمستخدمين (مثال: `ORD-202610-8921`).
+- `client_id` (UUID FK -> users.id): معرف حساب الموكل طالب الخدمة.
+- `lawyer_id` (UUID FK -> users.id): معرف حساب المحامي المكلف بالمهمة.
+- `service_type` (VARCHAR 50): نوع الخدمة (`lawyer_now`, `consultation`, `contract`).
+- `service_title` (VARCHAR 255): عنوان ومسمى الخدمة الميدانية.
+- `problem_type` (VARCHAR 100): التصنيف الفرعي المختار في الخطوة الأولى.
+- `problem_description` (TEXT): الشرح التفصيلي للمشكلة المدخل من الموكل.
+- `client_latitude` / `client_longitude` (NUMERIC 10,7): الإحداثيات الجغرافية لموقع الموكل.
+- `client_address` (TEXT): العنوان النصي المعرب لموقع الموكل.
+- `lawyer_latitude` / `lawyer_longitude` (NUMERIC 10,7): إحداثيات موقع المحامي عند استقبال الطلب.
+- `price` (NUMERIC 10,2): الرسوم المقدرة والمسددة للطلب بالجنيه المصري.
+- `status` (VARCHAR 30): حالة دورة حياة الطلب (`PENDING`, `ACCEPTED`, `REJECTED`, `ACTIVE`, `COMPLETED`, `CANCELLED`).
+- `cancellation_reason` / `rejection_reason` (TEXT): أسباب الإلغاء أو الاعتذار المسجلة.
+- `accepted_at` / `completed_at` / `cancelled_at` (TIMESTAMPTZ): التوقيتات الدقيقة للانتقالات.
+- `created_at` / `updated_at` (TIMESTAMPTZ): توقيت الإنشاء والتحديث التلقائي عبر Trigger.
+
+### 2.9 جدول سجل العمليات والتدقيق للطلبات (`order_status_logs`) — ترحيل 002
+- `id` (UUID): المفتاح الرئيسي.
+- `order_id` (UUID FK -> service_orders.id): معرف الطلب المرتبط.
+- `changed_by_user_id` (UUID FK -> users.id): معرف المستخدم الذي أجرى التغيير (موكل، محامٍ، أو مدير).
+- `old_status` (VARCHAR 30): الحالة السابقة للطلب.
+- `new_status` (VARCHAR 30): الحالة الجديدة بعد الانتقال.
+- `note` (TEXT): ملاحظات توضيحية لسبب الانتقال أو الإجراء المتخذ.
+- `created_at` (TIMESTAMPTZ): التوقيت الزمني الدقيق للعملية.
+
 ---
 
 ## 3. كيفية تشغيل الترحيلات وإضافة تعديلات مستقبلية

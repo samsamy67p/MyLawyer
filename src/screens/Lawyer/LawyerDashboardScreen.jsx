@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
 import { useRouter } from '../../router/useRouter';
+import { ordersApi, lawyerApi } from '../../services/apiClient';
 
 import LawyerHomeTab from './tabs/LawyerHomeTab';
 import LawyerOrdersTab from './tabs/LawyerOrdersTab';
@@ -20,6 +21,60 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
   const [activeNavTab, setActiveNavTab] = useState('home');
   const [isAvailable, setIsAvailable] = useState(true);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const [ordersList, setOrdersList] = useState([]);
+  const [availableBalance, setAvailableBalance] = useState(1850);
+
+  // Fetch initial profile & availability
+  useEffect(() => {
+    let isMounted = true;
+    lawyerApi.getProfile()
+      .then((res) => {
+        if (isMounted && res?.data?.profile) {
+          setIsAvailable(res.data.profile.is_available === true);
+        }
+      })
+      .catch(() => {});
+
+    return () => { isMounted = false; };
+  }, []);
+
+  // Fetch real incoming and active orders from database
+  const refreshOrders = useCallback(() => {
+    ordersApi.getOrders('ALL')
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          setOrdersList(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    refreshOrders();
+    const interval = setInterval(refreshOrders, 10000); // 10s auto-refresh for live orders
+    return () => clearInterval(interval);
+  }, [refreshOrders]);
+
+  // Handle availability toggle + GPS coordinate broadcast
+  const handleToggleAvailability = async () => {
+    const nextVal = !isAvailable;
+    setIsAvailable(nextVal);
+    try {
+      await lawyerApi.updateAvailability(nextVal);
+      if (nextVal && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            lawyerApi.updateLocation(pos.coords.latitude, pos.coords.longitude).catch(() => {});
+          },
+          () => {},
+          { timeout: 8000, enableHighAccuracy: true }
+        );
+      }
+    } catch {
+      // Revert if request fails
+      setIsAvailable(!nextVal);
+    }
+  };
 
   // تسجيل إغلاق نافذة سحب الأرباح عند ضغط زر الرجوع في الهاتف
   useEffect(() => {
@@ -30,82 +85,33 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
     }
   }, [isWithdrawOpen, registerModalDismiss, unregisterModalDismiss]);
 
-  // Orders State
-  const [ordersList, setOrdersList] = useState([
-    {
-      id: 'ORD-8922',
-      serviceTitle: 'محاميك حالاً: محاضر وأقسام شرطة',
-      clientName: 'أ/ كمال محمود',
-      clientChoice: 'عمل محضر إثبات حالة بقسم الشرطة',
-      problemDescription: 'وقوع مشادة مع الجيران ومحتاج حضور فوري لإثبات الحالة وتحرير محضر رسمي بقسم شرطة الدقي.',
-      specialty: 'قسم شرطة الدقي — 1.8 كم (6 دقائق)',
-      status: 'INCOMING',
-      statusLabel: 'طلب وارد مباشر',
-      date: 'اليوم، 08:25 م',
-      price: 350,
-      clientPhone: '01098765432',
-    },
-    {
-      id: 'ORD-8921',
-      serviceTitle: 'محاميك حالاً: تحقيق نيابة عامة',
-      clientName: 'أ/ طارق عبد الرحمن',
-      clientChoice: 'حضور تحقيق عاجل بالنيابة',
-      problemDescription: 'حضور جلسة تحقيق عاجلة في نيابة العجوزة الابتدائية وتقديم طلب إخلاء سبيل بكفالة.',
-      specialty: 'نيابة العجوزة الابتدائية',
-      status: 'ACTIVE',
-      statusLabel: 'جاري التنفيذ',
-      date: 'اليوم، 01:30 م',
-      price: 600,
-      clientPhone: '01123456789',
-    },
-    {
-      id: 'ORD-7612',
-      serviceTitle: 'محاميك حالاً: إجراءات شهر عقاري وتوكيلات',
-      clientName: 'شركة النور للمقاولات',
-      clientChoice: 'إنهاء إجراء توثيق سريع في الشهر العقاري',
-      problemDescription: 'توثيق رسمي سريع لعقد شراكة وإنهاء إجراءات التوكيل الخاص في فرع الشهر العقاري.',
-      specialty: 'شهر عقاري الدقي',
-      status: 'COMPLETED',
-      statusLabel: 'مكتمل بنجاح',
-      date: '28 أكتوبر 2026، 11:15 ص',
-      price: 900,
-      clientPhone: '01234567890',
-    },
-  ]);
-
-  // Wallet State
-  const [availableBalance, setAvailableBalance] = useState(1850);
-
-  // Order Handlers
-  const handleAcceptOrder = (orderId) => {
-    setOrdersList((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: 'ACTIVE', statusLabel: 'جاري التنفيذ' }
-          : o
-      )
-    );
+  // Order Handlers connected to real backend
+  const handleAcceptOrder = async (orderId) => {
+    try {
+      await ordersApi.acceptOrder(orderId);
+      refreshOrders();
+    } catch {
+      refreshOrders();
+    }
   };
 
-  const handleRejectOrder = (orderId) => {
-    setOrdersList((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: 'CANCELLED', statusLabel: 'ملغي' }
-          : o
-      )
-    );
+  const handleRejectOrder = async (orderId) => {
+    try {
+      await ordersApi.rejectOrder(orderId, 'المحامي غير متاح حالياً للمهمة');
+      refreshOrders();
+    } catch {
+      refreshOrders();
+    }
   };
 
-  const handleCompleteOrder = (orderId, amount) => {
-    setOrdersList((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: 'COMPLETED', statusLabel: 'مكتمل بنجاح' }
-          : o
-      )
-    );
-    setAvailableBalance((prev) => prev + amount);
+  const handleCompleteOrder = async (orderId, amount) => {
+    try {
+      await ordersApi.completeOrder(orderId);
+      setAvailableBalance((prev) => prev + (amount || 350));
+      refreshOrders();
+    } catch {
+      refreshOrders();
+    }
   };
 
   const handleConfirmWithdrawal = (amount) => {
@@ -153,7 +159,7 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
           user={user}
           availableBalance={availableBalance}
           isAvailable={isAvailable}
-          onToggleAvailability={() => setIsAvailable((prev) => !prev)}
+          onToggleAvailability={handleToggleAvailability}
           onNavigateTab={setActiveNavTab}
         />
       )}

@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { CAIRO_DEFAULT_COORDS, normalizeCoords } from '../constants/geo.js';
 import {
-  getNearbyMockLawyers,
   resolveRoadSnappedLawyers,
   rankLawyersBySuitability,
   selectNextAlternativeLawyer,
@@ -31,10 +30,8 @@ export function useNearbyLawyersRoute(userCoords) {
   const [activeTargetLawyerId, setActiveTargetLawyerId] = useState(null);
   const [visitedLawyerIds, setVisitedLawyerIds] = useState([]);
 
-  // Lawyers list: initialized synchronously, then upgraded with road-snapped coordinates & matrix distances
-  const [lawyersList, setLawyersList] = useState(() =>
-    getNearbyMockLawyers(userLat, userLon)
-  );
+  // Lawyers list: loaded dynamically from real backend API (empty by default)
+  const [lawyersList, setLawyersList] = useState([]);
 
   const [isSearchingNearby, setIsSearchingNearby] = useState(true);
 
@@ -56,7 +53,7 @@ export function useNearbyLawyersRoute(userCoords) {
       if (abortCtrl.signal.aborted) return;
       setIsSearchingNearby(true);
       setVisitedLawyerIds([]);
-      setLawyersList(getNearbyMockLawyers(userLat, userLon));
+      setLawyersList([]);
     });
 
     resolveRoadSnappedLawyers(userLat, userLon, {

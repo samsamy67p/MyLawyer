@@ -6,8 +6,8 @@ import { dbPool, withTransaction } from './index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function runMigrations() {
-  console.log('--- Starting PostgreSQL Migrations ---');
+export async function runMigrations(closePool = false): Promise<number> {
+  console.log('[MIGRATIONS] Checking PostgreSQL Migrations...');
 
   // 1. Create migrations tracking table if not exists
   await dbPool.query(`
@@ -20,9 +20,9 @@ async function runMigrations() {
   // 2. Discover migration files
   const migrationsDir = path.resolve(__dirname, '../../migrations');
   if (!fs.existsSync(migrationsDir)) {
-    console.log(`No migrations directory found at: ${migrationsDir}`);
-    await dbPool.end();
-    return;
+    console.log(`[MIGRATIONS] No migrations directory found at: ${migrationsDir}`);
+    if (closePool) await dbPool.end();
+    return 0;
   }
 
   const files = fs.readdirSync(migrationsDir)
@@ -30,9 +30,9 @@ async function runMigrations() {
     .sort();
 
   if (files.length === 0) {
-    console.log('No SQL migration files found.');
-    await dbPool.end();
-    return;
+    console.log('[MIGRATIONS] No SQL migration files found.');
+    if (closePool) await dbPool.end();
+    return 0;
   }
 
   // 3. Fetch already applied migrations
@@ -43,11 +43,10 @@ async function runMigrations() {
 
   for (const file of files) {
     if (appliedSet.has(file)) {
-      console.log(`[SKIPPED] ${file} (already applied)`);
       continue;
     }
 
-    console.log(`[APPLYING] ${file}...`);
+    console.log(`[MIGRATIONS] Applying ${file}...`);
     const filePath = path.join(migrationsDir, file);
     const sql = fs.readFileSync(filePath, 'utf-8');
 
@@ -56,16 +55,27 @@ async function runMigrations() {
       await client.query('INSERT INTO schema_migrations (name) VALUES ($1)', [file]);
     });
 
-    console.log(`[SUCCESS] Applied ${file}`);
+    console.log(`[MIGRATIONS] Successfully applied ${file}`);
     appliedCount++;
   }
 
-  console.log(`--- Migrations finished. Total newly applied: ${appliedCount} ---`);
-  await dbPool.end();
+  if (appliedCount > 0) {
+    console.log(`[MIGRATIONS] Finished applying ${appliedCount} new migration(s).`);
+  } else {
+    console.log('[MIGRATIONS] Database schema is up to date.');
+  }
+
+  if (closePool) {
+    await dbPool.end();
+  }
+
+  return appliedCount;
 }
 
-runMigrations().catch((err) => {
-  console.error('Fatal Migration Error:', err);
-  process.exit(1);
-});
-
+// If executed directly from command line
+if (process.argv[1] && process.argv[1].includes('migrate')) {
+  runMigrations(true).catch((err) => {
+    console.error('[MIGRATIONS] Fatal Migration Error:', err);
+    process.exit(1);
+  });
+}

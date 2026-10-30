@@ -6,6 +6,7 @@ import {
   Crosshair,
   Star,
   Loader2,
+  ShieldAlert,
 } from 'lucide-react';
 import LawyerProfileModal from '../../components/common/LawyerProfileModal';
 import Header from '../../components/layout/Header';
@@ -482,6 +483,16 @@ export default function LawyerNowScreen({
               <Loader2 size={26} className="sheet-pure-spinner animate-spin" />
               <h4 className="sheet-loading-title">جاري البحث عن أقرب محامي ليك...</h4>
               <p className="sheet-loading-sub">بنحدد المحامين المتاحين حالياً على شبكة الطرق</p>
+            </div>
+          ) : sortedLawyers.length === 0 ? (
+            <div className="sheet-empty-container flex flex-col items-center justify-center py-10 px-4 text-center select-none">
+              <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+                <ShieldAlert size={26} className="text-[#1D4ED8]" />
+              </div>
+              <h4 className="text-[15px] font-bold text-slate-800 mb-1">لا يوجد محامون متاحون حالياً</h4>
+              <p className="text-[13px] text-slate-500 max-w-[270px] leading-relaxed mb-4">
+                لا يوجد محامون معتمدون متاحون في نطاقك الجغرافي حالياً. يمكنك إعادة المحاولة بعد قليل.
+              </p>
             </div>
           ) : (
             sortedLawyers.map((lawyer, index) => {
