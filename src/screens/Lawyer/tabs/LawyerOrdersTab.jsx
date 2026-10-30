@@ -13,6 +13,7 @@ import {
   Activity,
   Hash,
 } from 'lucide-react';
+import emptyOrdersIllustration from '../../../assets/undraw_done_erdp.svg';
 
 export default function LawyerOrdersTab({
   ordersList,
@@ -280,8 +281,15 @@ export default function LawyerOrdersTab({
         ))}
 
         {filteredOrders.length === 0 && (
-          <div className="bg-white p-8 rounded-[7px] border border-slate-200 text-center shadow-xs">
-            <p className="text-xs text-slate-500 m-0">لا توجد طلبات في هذا القسم حالياً</p>
+          <div className="flex flex-col items-center justify-center text-center py-12 px-4 select-none">
+            <img
+              src={emptyOrdersIllustration}
+              alt="لا توجد طلبات"
+              className="w-48 h-auto max-h-40 mb-4 object-contain opacity-95 pointer-events-none"
+            />
+            <p className="text-sm font-semibold text-slate-500 m-0">
+              لا توجد طلبات في هذا القسم حالياً
+            </p>
           </div>
         )}
       </div>
