@@ -248,9 +248,9 @@
 .lawyer-order-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 12px;
-  margin-top: 4px;
+  gap: 12px;
+  padding: 14px 4px 4px 4px;
+  margin-top: 6px;
   border-top: 1px solid #F1F5F9;
   flex-wrap: wrap;
 }
@@ -259,11 +259,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 7px;
-  font-size: 0.78rem;
+  gap: 8px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
   font-weight: 700;
   font-family: inherit;
   text-decoration: none;
@@ -351,11 +352,12 @@
 .lawyer-order-status-completed {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 7px;
-  font-size: 0.78rem;
+  gap: 8px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
   font-weight: 700;
   background-color: #ECFDF5;
   color: #047857;
