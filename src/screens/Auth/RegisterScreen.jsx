@@ -289,7 +289,10 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateLogin }) {
                   </div>
                 )}
               </div>
-              <p className="privacy-note">🔒 مستندات الكارنيه سرية ومحمية ولا تظهر للعامة نهائياً.</p>
+              <p className="privacy-note">
+                <ShieldCheck size={14} className="inline text-[#1D4ED8] ml-1 align-text-bottom" />
+                <span>مستندات الكارنيه سرية ومحمية ولا تظهر للعامة نهائياً.</span>
+              </p>
             </div>
           </div>
         )}
@@ -307,21 +310,20 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateLogin }) {
           </label>
         </div>
 
-        {/* Submit Button */}
-        <Button type="submit" isLoading={isLoading} className="w-full">
-          <span>إنشاء الحساب ومتابعة التحقق</span>
-        </Button>
+        {/* Action Buttons Group - Identical Symmetrical Sizes */}
+        <div className="register-actions-group">
+          <Button type="submit" isLoading={isLoading} className="w-full">
+            <span>إنشاء الحساب ومتابعة التحقق</span>
+          </Button>
 
-        {/* Back to Login */}
-        <div className="back-to-login-row">
-          <span>لديك حساب بالفعل؟</span>
-          <button
+          <Button
             type="button"
-            className="login-link-btn"
+            variant="secondary"
             onClick={onNavigateLogin}
+            className="w-full"
           >
-            تسجيل الدخول
-          </button>
+            <span>لديك حساب بالفعل؟ تسجيل الدخول</span>
+          </Button>
         </div>
       </form>
     </div>

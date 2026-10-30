@@ -62,3 +62,4 @@ export function sanitizeText(text: string, maxLength = 500): string {
     .trim()
     .slice(0, maxLength);
 }
+

@@ -55,7 +55,7 @@ export async function sendOtpEmail(toEmail: string, otpCode: string, purpose: 'r
     <body>
       <div class="card">
         <div class="header">
-          <div class="brand">MyLawyer ⚖️</div>
+          <div class="brand">MyLawyer</div>
           <div class="title">${title}</div>
           <div class="badge">صالح لمدة 10 دقائق فقط</div>
         </div>
@@ -64,7 +64,7 @@ export async function sendOtpEmail(toEmail: string, otpCode: string, purpose: 'r
           <div class="otp-box">${otpCode}</div>
         </div>
         <p class="text" style="font-size: 13px; color: #64748b;">
-          ⚠️ تنبيه أمني: لا تشارك هذا الرمز مع أي شخص، فريق MyLawyer لن يطلب منك أبداً رمز التحقق الخاص بك.
+          تنبيه أمني: لا تشارك هذا الرمز مع أي شخص، فريق MyLawyer لن يطلب منك أبداً رمز التحقق الخاص بك.
         </p>
         <div class="footer">
           © 2026 تطبيق MyLawyer. جميع الحقوق محفوظة.

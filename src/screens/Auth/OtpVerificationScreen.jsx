@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, ArrowRight, RefreshCw } from 'lucide-react';
+import { ArrowRight, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { authApi } from '../../services/apiClient';
+import MailSentIllustration from '../../assets/undraw_mail-sent_dagx.svg';
 import './OtpVerificationScreen.css';
 
 export default function OtpVerificationScreen({ email, onVerified, onBack }) {
@@ -92,8 +93,12 @@ export default function OtpVerificationScreen({ email, onVerified, onBack }) {
 
   return (
     <div className="otp-screen-layout">
-      <div className="otp-icon-wrap">
-        <Mail size={36} className="text-[#1D4ED8]" />
+      <div className="otp-illustration-wrap">
+        <img
+          src={MailSentIllustration}
+          alt="تم إرسال رمز التحقق"
+          className="otp-illustration-img"
+        />
       </div>
 
       <div className="otp-intro-box">
@@ -126,9 +131,23 @@ export default function OtpVerificationScreen({ email, onVerified, onBack }) {
           ))}
         </div>
 
-        <Button type="submit" isLoading={isLoading} className="w-full">
-          <span>تأكيد الرمز والتفعيل</span>
-        </Button>
+        <div className="otp-actions-group">
+          <Button type="submit" isLoading={isLoading} className="w-full">
+            <span>تأكيد الرمز والتفعيل</span>
+          </Button>
+
+          {onBack && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={onBack}
+            >
+              <ArrowRight size={16} />
+              <span>العودة لتعديل البيانات</span>
+            </Button>
+          )}
+        </div>
 
         {/* Resend Cooldown */}
         <div className="resend-row">
@@ -146,13 +165,6 @@ export default function OtpVerificationScreen({ email, onVerified, onBack }) {
             </button>
           )}
         </div>
-
-        {onBack && (
-          <button type="button" className="otp-back-btn" onClick={onBack}>
-            <ArrowRight size={16} />
-            <span>العودة لتعديل البيانات</span>
-          </button>
-        )}
       </form>
     </div>
   );

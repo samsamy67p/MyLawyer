@@ -16,9 +16,10 @@ export const config = {
     host: process.env.SMTP_HOST || '127.0.0.1',
     port: parseInt(process.env.SMTP_PORT || '25', 10),
     secure: process.env.SMTP_SECURE === 'true',
-    from: process.env.EMAIL_FROM || 'MyLawyer <noreply@mylawyer.app>',
+    from: process.env.EMAIL_FROM || 'MyLawyer <noreply@masrypay.online>',
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   corsOrigin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['*'],
 };
+

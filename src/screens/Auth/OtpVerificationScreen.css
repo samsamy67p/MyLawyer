@@ -11,15 +11,20 @@
   text-align: center;
 }
 
-.otp-icon-wrap {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background-color: #EFF6FF;
+.otp-illustration-wrap {
+  width: 100%;
+  max-width: 180px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  margin: 0 auto 16px;
+}
+
+.otp-illustration-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .otp-title {
@@ -92,10 +97,18 @@
   box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
 
+.otp-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
 .resend-row {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 4px;
 }
 
 .resend-countdown {
@@ -127,3 +140,4 @@
   gap: 6px;
   margin-top: 10px;
 }
+

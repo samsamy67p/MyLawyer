@@ -207,3 +207,4 @@ export async function lawyerRoutes(fastify: FastifyInstance) {
     return reply.send(fileStream);
   });
 }
+

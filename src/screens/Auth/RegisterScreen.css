@@ -27,18 +27,21 @@
 }
 
 .role-selector-wrap {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .role-tab-btn {
-  flex: 1;
+  width: 100%;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px;
+  padding: 0 16px;
   border-radius: 7px;
   border: 1.5px solid #E2E8F0;
   background-color: #F8FAFC;
@@ -47,6 +50,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .role-tab-btn.active {
@@ -165,20 +169,11 @@
   margin: 6px 0;
 }
 
-.back-to-login-row {
+.register-actions-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #64748B;
-  margin-top: 10px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
 }
 
-.login-link-btn {
-  background: none;
-  border: none;
-  color: #1D4ED8;
-  font-weight: 700;
-  cursor: pointer;
-}

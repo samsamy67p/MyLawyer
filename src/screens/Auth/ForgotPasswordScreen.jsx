@@ -147,3 +147,4 @@ export default function ForgotPasswordScreen({ onNavigateLogin }) {
     </div>
   );
 }
+
