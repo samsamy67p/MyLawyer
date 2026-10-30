@@ -10,6 +10,8 @@ import {
   FileText,
   Coins,
   ShieldAlert,
+  Activity,
+  Hash,
 } from 'lucide-react';
 
 export default function LawyerOrdersTab({
@@ -82,19 +84,45 @@ export default function LawyerOrdersTab({
               {/* جدول تفاصيل الطلب المتناسق */}
               <table className="lawyer-order-table">
                 <tbody>
-                  {/* 1. رقم الطلب */}
+                  {/* 1. حالة الطلب */}
                   <tr>
                     <th>
                       <div className="lawyer-order-table-label">
+                        <Activity size={13} className="text-[#1D4ED8]" />
+                        <span>حالة الطلب</span>
+                      </div>
+                    </th>
+                    <td>
+                      <span
+                        className={`font-bold text-xs ${
+                          order.status === 'COMPLETED'
+                            ? 'text-emerald-600'
+                            : order.status === 'ACTIVE'
+                            ? 'text-amber-600'
+                            : order.status === 'CANCELLED'
+                            ? 'text-rose-600'
+                            : 'text-[#1D4ED8]'
+                        }`}
+                      >
+                        {order.statusLabel}
+                      </span>
+                    </td>
+                  </tr>
+
+                  {/* 2. رقم الطلب */}
+                  <tr>
+                    <th>
+                      <div className="lawyer-order-table-label">
+                        <Hash size={13} className="text-[#1D4ED8]" />
                         <span>رقم الطلب</span>
                       </div>
                     </th>
                     <td>
-                      <span className="font-bold text-[#1D4ED8] tracking-wider">#{order.id}</span>
+                      <span className="font-bold text-slate-800 tracking-wider">#{order.id}</span>
                     </td>
                   </tr>
 
-                  {/* 2. تاريخ ووقت الطلب */}
+                  {/* 3. تاريخ ووقت الطلب */}
                   <tr>
                     <th>
                       <div className="lawyer-order-table-label">
@@ -105,7 +133,7 @@ export default function LawyerOrdersTab({
                     <td className="text-slate-700">{order.date}</td>
                   </tr>
 
-                  {/* 3. الخدمة */}
+                  {/* 4. الخدمة */}
                   <tr>
                     <th>
                       <div className="lawyer-order-table-label">
@@ -114,7 +142,9 @@ export default function LawyerOrdersTab({
                       </div>
                     </th>
                     <td className="font-bold text-[#1D4ED8]">
-                      {order.serviceTitle || 'محاميك حالاً'}
+                      {(order.serviceTitle || 'محاميك حالاً')
+                        .replace(/^محاميك\s*حالاً\s*(:|—|-)?\s*/i, '')
+                        .trim() || 'محاميك حالاً'}
                     </td>
                   </tr>
 
