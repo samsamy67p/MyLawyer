@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, startTransition } from 'react';
 import { App as CapApp } from '@capacitor/app';
 import { RouterContext } from './context.js';
-import { ROUTES, normalizePath, isValidRoute } from './routes.js';
+import { ROUTES, normalizePath, isValidRoute, isBottomNavRoute } from './routes.js';
 
 /**
  * استخراج المسار الابتدائي الحالي من window.location
@@ -70,8 +70,8 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
     isAuthenticatedRef.current = Boolean(initialUser);
   }, [initialUser]);
 
-  // مرجع لتسجيل دوال إغلاق الطبقات والنوافذ المنبثقة (Active Modal Dismiss)
-  const activeModalDismissRef = useRef(null);
+  // مصفوفة مكدس لتسجيل دوال إغلاق النوافذ والطبقات النشطة (LIFO Stack)
+  const activeModalDismissRef = useRef([]);
 
   // إشعار النقر المزدوج للخروج
   const [exitToastNotice, setExitToastNotice] = useState(false);
@@ -117,7 +117,7 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
     // مما كان يضاعف إدخالات السجل ويجعل زر الرجوع يحتاج ضغطتين.
     if (target === ROUTES.LOGIN) {
       isAuthenticatedRef.current = false;
-      activeModalDismissRef.current = null;
+      activeModalDismissRef.current = [];
       historyStackRef.current = [ROUTES.LOGIN];
       syncBrowserUrl(ROUTES.LOGIN, true);
     } else {
@@ -132,8 +132,18 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
           historyStackRef.current = [target];
         }
         syncBrowserUrl(target, true);
+      } else if (isBottomNavRoute(target)) {
+        // التبديل بين التبويبات الرئيسية (الرئيسية، الطلبات، المحفظة، الحساب):
+        // تبدأ دائماً بـ [ROUTES.HOME] ثم التبويب المختار (إن لم يكن الرئيسية).
+        // هذا يمنع تراكم التبويبات إلى ما لا نهاية ويجعل الرجوع من أي تبويب يعود للرئيسية أولاً.
+        if (target === ROUTES.HOME) {
+          historyStackRef.current = [ROUTES.HOME];
+        } else {
+          historyStackRef.current = [ROUTES.HOME, target];
+        }
+        syncBrowserUrl(target, false);
       } else {
-        // إضافة مسار جديد للسجل
+        // إضافة مسار فرعي جديد للسجل
         stack.push(target);
         syncBrowserUrl(target, false);
       }
@@ -151,12 +161,13 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
    * الرجوع للخلف في سجل التنقل خطوة بخطوة
    */
   const goBack = useCallback(() => {
-    // 1. الأولوية الأولى: إغلاق النوافذ والبطاقات المفتوحة أولاً إن وجدت
-    if (activeModalDismissRef.current) {
-      const dismissFn = activeModalDismissRef.current;
-      activeModalDismissRef.current = null;
-      dismissFn();
-      return true;
+    // 1. الأولوية الأولى: إغلاق النوافذ والبطاقات المفتوحة أولاً إن وجدت (LIFO)
+    if (activeModalDismissRef.current && activeModalDismissRef.current.length > 0) {
+      const dismissFn = activeModalDismissRef.current.pop();
+      if (typeof dismissFn === 'function') {
+        dismissFn();
+        return true;
+      }
     }
 
     // إذا كان المستخدم في صفحة تسجيل الدخول أو غير مسجل، لا يُسمح بالرجوع لأي شاشة سابقة
@@ -226,14 +237,20 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
   }, [goBack]);
 
   /**
-   * تسجيل دالة لإغلاق نافذة أو بطاقة نشطة
+   * تسجيل دالة لإغلاق نافذة أو بطاقة نشطة (LIFO Stack)
    */
   const registerModalDismiss = useCallback((dismissFn) => {
-    activeModalDismissRef.current = dismissFn;
+    if (typeof dismissFn === 'function') {
+      activeModalDismissRef.current.push(dismissFn);
+    }
   }, []);
 
-  const unregisterModalDismiss = useCallback(() => {
-    activeModalDismissRef.current = null;
+  const unregisterModalDismiss = useCallback((dismissFn) => {
+    if (dismissFn) {
+      activeModalDismissRef.current = activeModalDismissRef.current.filter((fn) => fn !== dismissFn);
+    } else {
+      activeModalDismissRef.current.pop();
+    }
   }, []);
 
   // الاستماع لزر الرجوع الفعلي للهاتف عبر Capacitor (تسجيل واحد طوال عمر التطبيق)

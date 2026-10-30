@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header';
 import BottomNav from '../../components/layout/BottomNav';
+import { useRouter } from '../../router/useRouter';
 
 import LawyerHomeTab from './tabs/LawyerHomeTab';
 import LawyerOrdersTab from './tabs/LawyerOrdersTab';
@@ -15,8 +16,19 @@ import '../Wallet/WalletScreen.css';
 import '../Account/AccountScreen.css';
 
 export default function LawyerDashboardScreen({ user, onLogout }) {
+  const { registerModalDismiss, unregisterModalDismiss } = useRouter();
   const [activeNavTab, setActiveNavTab] = useState('home');
   const [isAvailable, setIsAvailable] = useState(true);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+
+  // تسجيل إغلاق نافذة سحب الأرباح عند ضغط زر الرجوع في الهاتف
+  useEffect(() => {
+    if (isWithdrawOpen) {
+      const dismiss = () => setIsWithdrawOpen(false);
+      registerModalDismiss?.(dismiss);
+      return () => unregisterModalDismiss?.(dismiss);
+    }
+  }, [isWithdrawOpen, registerModalDismiss, unregisterModalDismiss]);
 
   // Orders State
   const [ordersList, setOrdersList] = useState([
@@ -63,7 +75,6 @@ export default function LawyerDashboardScreen({ user, onLogout }) {
 
   // Wallet State
   const [availableBalance, setAvailableBalance] = useState(1850);
-  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
 
   // Order Handlers
   const handleAcceptOrder = (orderId) => {

@@ -334,6 +334,13 @@ function AppNavigationContent({
             handleLocationSave(coords, address);
           }}
           onBack={() => transitionTo(ROUTES.HOME)}
+          onModalStateChange={(isOpen, dismissFn) => {
+            if (isOpen && dismissFn) {
+              registerModalDismiss?.(dismissFn);
+            } else {
+              unregisterModalDismiss?.();
+            }
+          }}
         />
       </ScreenWrapper>
     );
@@ -354,6 +361,13 @@ function AppNavigationContent({
           onSubmitDetails={(details) => {
             setLawyerNowRequestDetails(details);
             transitionTo(ROUTES.LAWYER_NOW_MAP);
+          }}
+          onModalStateChange={(isOpen, dismissFn) => {
+            if (isOpen && dismissFn) {
+              registerModalDismiss?.(dismissFn);
+            } else {
+              unregisterModalDismiss?.();
+            }
           }}
         />
       </ScreenWrapper>

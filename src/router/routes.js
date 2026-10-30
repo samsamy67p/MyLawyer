@@ -35,6 +35,25 @@ export const ROUTES = {
 export const VALID_ROUTES = Object.values(ROUTES);
 
 /**
+ * التبويبات الرئيسية في شريط التنقل السفلي
+ */
+export const BOTTOM_NAV_ROUTES = [
+  ROUTES.HOME,
+  ROUTES.ORDERS,
+  ROUTES.WALLET,
+  ROUTES.ACCOUNT,
+];
+
+/**
+ * فحص ما إذا كان المسار أحد التبويبات الرئيسية
+ * @param {string} path
+ * @returns {boolean}
+ */
+export function isBottomNavRoute(path) {
+  return BOTTOM_NAV_ROUTES.includes(path);
+}
+
+/**
  * دالة مساعدة لتطبيع المسار والتأكد من مطابقته
  * @param {string} path 
  * @returns {string} المسار بعد التهيئة أو '/' كمسار افتراضي

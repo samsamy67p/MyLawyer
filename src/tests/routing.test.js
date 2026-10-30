@@ -6,6 +6,7 @@ import {
   VALID_ROUTES,
   normalizePath,
   isValidRoute,
+  isBottomNavRoute,
 } from '../router/routes.js';
 
 describe('7. In-App Routing Architecture & Navigation Validation', () => {
@@ -52,6 +53,17 @@ describe('7. In-App Routing Architecture & Navigation Validation', () => {
     const uniqueValues = new Set(routeValues);
     assert.equal(routeValues.length, uniqueValues.size);
     assert.equal(VALID_ROUTES.length, routeValues.length);
+  });
+
+  it('correctly identifies bottom nav root routes', () => {
+    assert.equal(isBottomNavRoute(ROUTES.HOME), true);
+    assert.equal(isBottomNavRoute(ROUTES.ORDERS), true);
+    assert.equal(isBottomNavRoute(ROUTES.WALLET), true);
+    assert.equal(isBottomNavRoute(ROUTES.ACCOUNT), true);
+    assert.equal(isBottomNavRoute(ROUTES.LOCATION_SETUP), false);
+    assert.equal(isBottomNavRoute(ROUTES.LOCATION_MAP), false);
+    assert.equal(isBottomNavRoute(ROUTES.LAWYER_NOW_REQUEST), false);
+    assert.equal(isBottomNavRoute(ROUTES.LAWYER_NOW_MAP), false);
   });
 });
 
