@@ -8,7 +8,6 @@ import {
   Zap,
   Calendar,
 } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
 
 export default function LawyerOrdersTab({
   ordersList,
@@ -134,38 +133,36 @@ export default function LawyerOrdersTab({
                 </div>
               </div>
 
-              {/* 3. شريط الأزرار المنسقة: فتح الخريطة، قبول، اعتذار */}
-              <div className="flex items-center gap-2 pt-2.5 mt-1 border-t border-slate-100 flex-wrap">
-                {/* زر فتح الخريطة المنسق بالأيقونة */}
+              {/* 3. شريط الأزرار المنسقة والموحدة مع إطار متقطع (Dashed Border) */}
+              <div className="lawyer-order-actions">
+                {/* زر فتح الخريطة */}
                 <button
                   type="button"
                   onClick={() => handleOpenMapLocation(order)}
-                  className="h-8 px-3 rounded-[6px] text-xs font-bold bg-blue-50 text-[#1D4ED8] hover:bg-blue-100 border border-blue-200 flex items-center gap-1.5 transition-all"
+                  className="lawyer-order-btn lawyer-order-btn-map"
                 >
-                  <MapPin size={13} />
+                  <MapPin size={14} />
                   <span>فتح الخريطة</span>
                 </button>
 
                 {/* أزرار الحالات الخاصة بالطلب */}
                 {order.status === 'INCOMING' && (
                   <>
-                    <Button
+                    <button
                       type="button"
-                      variant="primary"
-                      size="sm"
                       onClick={() => onAcceptOrder?.(order.id)}
-                      className="h-8 px-3.5 text-xs font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-[6px] flex items-center gap-1.5 shadow-xs"
+                      className="lawyer-order-btn lawyer-order-btn-accept"
                     >
-                      <Check size={13} />
+                      <Check size={14} />
                       <span>قبول</span>
-                    </Button>
+                    </button>
 
                     <button
                       type="button"
                       onClick={() => onRejectOrder?.(order.id)}
-                      className="h-8 px-3 rounded-[6px] text-xs font-bold bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 flex items-center gap-1 transition-all"
+                      className="lawyer-order-btn lawyer-order-btn-reject"
                     >
-                      <X size={13} />
+                      <X size={14} />
                       <span>اعتذار</span>
                     </button>
                   </>
@@ -175,28 +172,26 @@ export default function LawyerOrdersTab({
                   <>
                     <a
                       href={`tel:${order.clientPhone}`}
-                      className="h-8 px-3 rounded-[6px] text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 flex items-center gap-1.5 transition-all"
+                      className="lawyer-order-btn lawyer-order-btn-call"
                     >
-                      <Phone size={13} />
+                      <Phone size={14} />
                       <span>اتصال بالموكل</span>
                     </a>
 
-                    <Button
+                    <button
                       type="button"
-                      variant="primary"
-                      size="sm"
                       onClick={() => onCompleteOrder?.(order.id, order.price)}
-                      className="h-8 px-3.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-[6px] flex items-center gap-1.5 shadow-xs"
+                      className="lawyer-order-btn lawyer-order-btn-complete"
                     >
-                      <CheckCircle2 size={13} />
+                      <CheckCircle2 size={14} />
                       <span>إنهاء الإجراء</span>
-                    </Button>
+                    </button>
                   </>
                 )}
 
                 {order.status === 'COMPLETED' && (
-                  <div className="mr-auto flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-[5px] border border-emerald-200">
-                    <CheckCircle2 size={13} />
+                  <div className="lawyer-order-status-completed">
+                    <CheckCircle2 size={14} />
                     <span>تم إنجاز الطلب بنجاح</span>
                   </div>
                 )}

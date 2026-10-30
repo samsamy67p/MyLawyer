@@ -244,3 +244,123 @@
   gap: 12px;
 }
 
+/* Lawyer Custom Order Action Buttons */
+.lawyer-order-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid #F1F5F9;
+  flex-wrap: wrap;
+}
+
+.lawyer-order-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.18s ease-in-out;
+  outline: none;
+}
+
+.lawyer-order-btn:active {
+  transform: scale(0.98);
+}
+
+/* زر فتح الخريطة */
+.lawyer-order-btn-map {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border: 1.5px dashed #93C5FD;
+}
+
+.lawyer-order-btn-map:hover,
+.lawyer-order-btn-map:focus-visible {
+  background-color: #DBEAFE;
+  border-color: #2563EB;
+}
+
+/* زر قبول الطلب */
+.lawyer-order-btn-accept {
+  background-color: #1D4ED8;
+  color: #FFFFFF;
+  border: 1.5px dashed #93C5FD;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.2);
+}
+
+.lawyer-order-btn-accept:hover,
+.lawyer-order-btn-accept:focus-visible {
+  background-color: #1E40AF;
+  border-color: #FFFFFF;
+}
+
+/* زر اعتذار */
+.lawyer-order-btn-reject {
+  background-color: #F8FAFC;
+  color: #64748B;
+  border: 1.5px dashed #CBD5E1;
+}
+
+.lawyer-order-btn-reject:hover,
+.lawyer-order-btn-reject:focus-visible {
+  background-color: #FFF1F2;
+  color: #E11D48;
+  border-color: #FDA4AF;
+}
+
+/* زر اتصال بالموكل */
+.lawyer-order-btn-call {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1.5px dashed #6EE7B7;
+}
+
+.lawyer-order-btn-call:hover,
+.lawyer-order-btn-call:focus-visible {
+  background-color: #D1FAE5;
+  border-color: #10B981;
+}
+
+/* زر إنهاء الإجراء */
+.lawyer-order-btn-complete {
+  background-color: #059669;
+  color: #FFFFFF;
+  border: 1.5px dashed #A7F3D0;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+}
+
+.lawyer-order-btn-complete:hover,
+.lawyer-order-btn-complete:focus-visible {
+  background-color: #047857;
+  border-color: #FFFFFF;
+}
+
+/* شارة إنجاز الطلب */
+.lawyer-order-status-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1.5px dashed #6EE7B7;
+  box-sizing: border-box;
+  margin-right: auto;
+}
+
