@@ -305,15 +305,16 @@
   color: #1D4ED8;
 }
 
-/* Lawyer Custom Order Action Buttons: شبكة متناسقة تمنع بقاء أي زر وحيداً في سطر */
+/* Lawyer Custom Order Action Buttons: أزرار الإجراءات جنباً إلى جنب دائماً في نفس السطر */
 .lawyer-order-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding-top: 14px;
   margin-top: 6px;
   border-top: 1px solid #F1F5F9;
   width: 100%;
+  flex-wrap: nowrap;
   box-sizing: border-box;
 }
 
@@ -321,12 +322,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   height: 40px;
   min-height: 40px;
-  padding: 0 14px;
+  padding: 0 10px;
   border-radius: 8px;
-  font-size: 0.82rem;
+  font-size: 0.79rem;
   font-weight: 700;
   font-family: inherit;
   text-decoration: none;
@@ -336,7 +337,8 @@
   user-select: none;
   transition: all 0.18s ease-in-out;
   outline: none;
-  width: 100%;
+  flex: 1 1 0%;
+  min-width: 0;
 }
 
 .lawyer-order-btn:active {
