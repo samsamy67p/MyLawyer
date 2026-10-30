@@ -1,182 +1,114 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React from 'react';
 import {
   PhoneCall,
   Clock,
   ChevronLeft,
   ShieldCheck,
   Wallet,
+  Star,
 } from 'lucide-react';
 import ServiceRow from '../../../components/common/ServiceRow';
 
-import judgeIllustration from '../../../assets/illustrations/undraw_judge_hyqv.svg';
-import globalTeamBannerSvg from '../../../assets/illustrations/undraw_global-team_8jok.svg';
-import signedDocumentSvg from '../../../assets/illustrations/undraw_signed-document_y8vk.svg';
+const DEFAULT_LAWYER_AVATAR =
+  'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=240';
+
+/**
+ * استخراج الاسم الثنائي للمحامي مع تنظيف الألقاب والرتب
+ */
+function getDualName(fullName) {
+  if (!fullName || typeof fullName !== 'string') return 'أحمد فهمي';
+  const clean = fullName
+    .replace(/^(المستشار\s*(\/|-)?|الأستاذ\s*(\/|-)?|المحامي\s*(\/|-)?|د\.\s*|دكتور\s*(\/|-)?)\s*/gi, '')
+    .trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]} ${parts[1]}`;
+  }
+  return clean || 'أحمد فهمي';
+}
 
 export default function LawyerHomeTab({
   user,
-  availableBalance,
+  availableBalance = 14850,
   isAvailable,
   onToggleAvailability,
   onNavigateTab,
 }) {
-  const bannersViewportRef = useRef(null);
-  const activeIndexRef = useRef(0);
-  const isInteractingRef = useRef(false);
-
-  const handleBannerScroll = useCallback(() => {
-    const viewportEl = bannersViewportRef.current;
-    if (!viewportEl || !viewportEl.children.length) return;
-    const viewportLeft = viewportEl.getBoundingClientRect().left;
-    let closestIdx = 0;
-    let minDiff = Infinity;
-    for (let i = 0; i < viewportEl.children.length; i += 1) {
-      const diff = Math.abs(
-        viewportEl.children[i].getBoundingClientRect().left - viewportLeft
-      );
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = i;
-      }
-    }
-    activeIndexRef.current = closestIdx;
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (isInteractingRef.current) return;
-      const viewportEl = bannersViewportRef.current;
-      if (!viewportEl || viewportEl.children.length < 2) return;
-      const nextIdx = (activeIndexRef.current + 1) % viewportEl.children.length;
-      const targetEl = viewportEl.children[nextIdx];
-      if (targetEl) {
-        const deltaLeft =
-          targetEl.getBoundingClientRect().left -
-          viewportEl.getBoundingClientRect().left;
-        viewportEl.scrollBy({ left: deltaLeft, behavior: 'smooth' });
-        activeIndexRef.current = nextIdx;
-      }
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+  const dualName = getDualName(user?.fullName);
+  const lawyerAvatar =
+    user?.avatar ||
+    user?.profilePhoto ||
+    user?.profile_photo_path ||
+    DEFAULT_LAWYER_AVATAR;
 
   return (
     <main className="home-main-content">
-      {/* Promotional Banners Section (Matching Client Layout 1:1) */}
-      <section className="home-banners-section" aria-label="عروض وخدمات المحامي">
+      {/* كارت المحامي الثابت المنظم بدلاً من البنرات الترويجية */}
+      <section className="home-banners-section" aria-label="كارت المحامي التعريفي">
         <div
-          ref={bannersViewportRef}
-          className="home-banners-viewport"
-          onScroll={handleBannerScroll}
-          onTouchStart={() => {
-            isInteractingRef.current = true;
-          }}
-          onTouchEnd={() => {
-            isInteractingRef.current = false;
-          }}
-          onMouseDown={() => {
-            isInteractingRef.current = true;
-          }}
-          onMouseUp={() => {
-            isInteractingRef.current = false;
-          }}
+          className="home-promo-banner !cursor-pointer hover:!border-blue-400 transition-all"
+          onClick={() => onNavigateTab?.('account')}
+          role="button"
+          tabIndex={0}
         >
-          {/* Banner 1: استقبال طلبات محاميك حالاً */}
-          <div
-            className="home-promo-banner"
-            onClick={() => onNavigateTab?.('orders')}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="promo-banner-content">
-              <h3 className="promo-banner-title">طلبات محاميك حالاً</h3>
-              <p className="promo-banner-desc">
-                أنت متصل وجاهز لتلقي طلبات الموكلين حولك في نطاق 5 كم فوراً
-              </p>
-              <span className="promo-banner-cta">
-                <span>عرض الطلبات الواردة</span>
-                <ChevronLeft size={15} />
-              </span>
-            </div>
-            <div className="promo-banner-art">
+          <div className="flex items-center gap-3.5 w-full py-1">
+            {/* صورة المحامي الدائرية مع مؤشر التوفر */}
+            <div className="relative shrink-0">
               <img
-                src={globalTeamBannerSvg}
-                alt="محاميك حالاً للمحامي"
-                className="promo-banner-img"
+                src={lawyerAvatar}
+                alt={dualName}
+                className="w-16 h-16 rounded-full object-cover border-2 border-[#1D4ED8] shadow-sm"
+              />
+              <span
+                className={`absolute bottom-0 left-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                  isAvailable
+                    ? 'bg-emerald-500 ring-2 ring-emerald-100 animate-pulse'
+                    : 'bg-slate-400'
+                }`}
               />
             </div>
-          </div>
 
-          {/* Banner 2: رصيد الأتعاب والمحفظة */}
-          <div
-            className="home-promo-banner banner-charter"
-            onClick={() => onNavigateTab?.('wallet')}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="promo-banner-content">
-              <h3 className="promo-banner-title">محفظة الأتعاب القانونية</h3>
-              <p className="promo-banner-desc">
-                أتعابك المتاحة: {availableBalance.toLocaleString()} ج.م، جاهزة للتحويل اللحظي
+            {/* الاسم الثنائي والبيانات المهنية المنظمة */}
+            <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug m-0">
+                  {dualName}
+                </h3>
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1D4ED8] bg-blue-50 px-2 py-0.5 rounded-[5px] border border-blue-100">
+                  <ShieldCheck size={12} />
+                  <span>معتمد بالنقابة</span>
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-600 mt-1 line-clamp-1">
+                {user?.degree || 'محامٍ بالاستئناف العالي ومجلس الدولة'}
               </p>
-              <span className="promo-banner-cta">
-                <span>سحب الأرباح الآن</span>
-                <ChevronLeft size={15} />
-              </span>
-            </div>
-            <div className="promo-banner-art">
-              <div className="undraw-counter-graphic" aria-hidden="true">
-                <div className="undraw-counter-blob"></div>
-                <div className="undraw-counter-card">
-                  <div className="undraw-counter-top-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <div className="undraw-counter-ring">
-                    <span className="undraw-counter-num">{availableBalance}</span>
-                    <span className="undraw-counter-unit">ج.م متاح</span>
-                  </div>
-                  <div className="undraw-counter-shield">
-                    <ShieldCheck size={14} strokeWidth={2.5} />
-                  </div>
-                </div>
+
+              <div className="flex items-center gap-2 mt-1.5 text-[11px] font-medium text-slate-500 flex-wrap">
+                <span>رقم القيد: {user?.syndicateNumber || '482910'}</span>
+                <span>•</span>
+                <span
+                  className={
+                    isAvailable
+                      ? 'text-emerald-700 font-bold'
+                      : 'text-slate-500 font-medium'
+                  }
+                >
+                  {isAvailable ? 'متصل وجاهز للطلبات' : 'غير متصل حالياً'}
+                </span>
               </div>
             </div>
-          </div>
 
-          {/* Banner 3: الاعتماد المهني والنقابي */}
-          <div
-            className="home-promo-banner banner-contracts"
-            onClick={() => onNavigateTab?.('account')}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="promo-banner-content">
-              <h3 className="promo-banner-title">الاعتماد المهني بالنقابة</h3>
-              <p className="promo-banner-desc">
-                رقم القيد: 482910 • الدرجة: استئناف عالي ومجلس الدولة
-              </p>
-              <span className="promo-banner-cta">
-                <span>معاينة بيانات القيد</span>
-                <ChevronLeft size={15} />
-              </span>
-            </div>
-            <div className="promo-banner-art">
-              <img
-                src={signedDocumentSvg}
-                alt="الاعتماد النقابي"
-                className="promo-banner-img"
-              />
+            {/* سهم التنقل لصفحة الحساب */}
+            <div className="shrink-0 text-slate-400 pl-1">
+              <ChevronLeft size={20} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Field Status & Availability Bar (Identical to Client location-pill-bar) */}
-      <div
-        className="location-pill-bar"
-        onClick={onToggleAvailability}
-      >
+      {/* شريط حالة الاستعداد الميداني وتغيير التوفر */}
+      <div className="location-pill-bar" onClick={onToggleAvailability}>
         <div className="location-pill-info">
           <span
             className={`w-2.5 h-2.5 rounded-full ${
@@ -194,27 +126,19 @@ export default function LawyerHomeTab({
         </button>
       </div>
 
-      {/* Intro Section (Identical to Client home-intro-section) */}
+      {/* قسم المؤشرات والأداء القانوني */}
       <section className="home-intro-section">
-        <h2>كارت المحامي والإحصائيات</h2>
-        <p>بياناتك المعتمدة ومؤشرات الأداء القانوني الميداني</p>
+        <h2>مؤشرات الأداء والطلبات</h2>
+        <p>إدارة طلبات الموكلين والمحفظة والتقييم الميداني</p>
       </section>
 
-      {/* Services List using ServiceRow (Identical to Client) */}
+      {/* قائمة الخدمات والإحصائيات */}
       <section className="services-container-list">
-        <ServiceRow
-          imageSrc={judgeIllustration}
-          title={user?.fullName || 'المستشار / أحمد فهمي'}
-          desc="محامٍ معتمد بالنقابة • استئناف عالي ومجلس الدولة • قيد: 482910"
-          isHighlighted={true}
-          onAction={() => onNavigateTab?.('account')}
-        />
-
         <ServiceRow
           icon={Wallet}
           title={`${availableBalance.toLocaleString()} ج.م — رصيد أتعابك المتاح`}
           desc="سحب أرباحك فوراً عبر إنستاباي أو الحساب البنكي أو المحفظة"
-          isHighlighted={false}
+          isHighlighted={true}
           onAction={() => onNavigateTab?.('wallet')}
         />
 
@@ -227,8 +151,8 @@ export default function LawyerHomeTab({
         />
 
         <ServiceRow
-          icon={ShieldCheck}
-          title="تقييم الموكلين: 4.95 ⭐ (ممتاز)"
+          icon={Star}
+          title="تقييم الموكلين: 4.95 (ممتاز)"
           desc="إجمالي 34 طلباً منجزاً • متوسط سرعة الاستجابة 4 دقائق"
           isHighlighted={false}
           onAction={() => onNavigateTab?.('account')}

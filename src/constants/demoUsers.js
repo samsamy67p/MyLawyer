@@ -13,6 +13,7 @@ export const GUEST_CLIENT_USER = {
 export const DEMO_LAWYER_USER = {
   id: 'demo_lawyer_01',
   fullName: 'المستشار / أحمد فهمي',
+  avatar: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=240',
   phone: '01012345678',
   email: 'lawyer.demo@mylawyer.eg',
   role: 'lawyer',
@@ -23,3 +24,4 @@ export const DEMO_LAWYER_USER = {
   specialties: ['جنائي', 'مدني', 'شركات'],
   officeAddress: 'شارع جامعة الدول العربية، المهندسين، الجيزة',
 };
+

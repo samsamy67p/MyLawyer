@@ -13,3 +13,4 @@ export default function ScreenWrapper({ onReset, children, fallback = null }) {
     </Suspense>
   );
 }
+
