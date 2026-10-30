@@ -82,7 +82,7 @@ export default function LawyerOrdersTab({
               {/* جدول تفاصيل الطلب المتناسق */}
               <table className="lawyer-order-table">
                 <tbody>
-                  {/* 1. رقم الطلب والحالة */}
+                  {/* 1. رقم الطلب */}
                   <tr>
                     <th>
                       <div className="lawyer-order-table-label">
@@ -90,22 +90,7 @@ export default function LawyerOrdersTab({
                       </div>
                     </th>
                     <td>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#1D4ED8] tracking-wider">#{order.id}</span>
-                        <span
-                          className={`text-xs font-bold ${
-                            order.status === 'COMPLETED'
-                              ? 'text-emerald-600'
-                              : order.status === 'ACTIVE'
-                              ? 'text-amber-600'
-                              : order.status === 'CANCELLED'
-                              ? 'text-rose-600'
-                              : 'text-[#1D4ED8]'
-                          }`}
-                        >
-                          {order.statusLabel}
-                        </span>
-                      </div>
+                      <span className="font-bold text-[#1D4ED8] tracking-wider">#{order.id}</span>
                     </td>
                   </tr>
 
