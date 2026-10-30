@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { authApi } from '../../services/apiClient';
-import MailSentIllustration from '../../assets/undraw_mail-sent_dagx.svg';
+import MessageSentIllustration from '../../assets/undraw_message-sent_iyz6.svg';
 import './OtpVerificationScreen.css';
 
 export default function OtpVerificationScreen({ email, onVerified, onBack }) {
@@ -95,7 +95,7 @@ export default function OtpVerificationScreen({ email, onVerified, onBack }) {
     <div className="otp-screen-layout">
       <div className="otp-illustration-wrap">
         <img
-          src={MailSentIllustration}
+          src={MessageSentIllustration}
           alt="تم إرسال رمز التحقق"
           className="otp-illustration-img"
         />
