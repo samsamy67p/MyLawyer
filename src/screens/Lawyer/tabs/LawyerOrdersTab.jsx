@@ -89,12 +89,12 @@ export default function LawyerOrdersTab({
                     <span>{order.date}</span>
                   </span>
                   <span
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-[5px] ${
+                    className={`text-xs font-bold ${
                       order.status === 'COMPLETED'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                        ? 'text-emerald-600'
                         : order.status === 'ACTIVE'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                        : 'bg-blue-50 text-[#1D4ED8] border border-blue-100'
+                        ? 'text-amber-600'
+                        : 'text-[#1D4ED8]'
                     }`}
                   >
                     {order.statusLabel}
