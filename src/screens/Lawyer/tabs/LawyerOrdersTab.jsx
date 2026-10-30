@@ -38,7 +38,7 @@ export default function LawyerOrdersTab({
   };
 
   return (
-    <main className="orders-main-content">
+    <main className="orders-main-content flex-1 flex flex-col">
       {/* فلتر تصنيف الطلبات الموسع والقابل للتمرير الأفقي المريح بالأيقونات */}
       <div className="lawyer-orders-filter-scroll">
         <button
@@ -96,8 +96,8 @@ export default function LawyerOrdersTab({
         </button>
       </div>
 
-      {/* قائمة بطاقات الطلبات المنسقة */}
-      <div className="orders-cards-list">
+      {/* قائمة بطاقات الطلبات المنسقة أو الحالة الفارغة في منتصف الصفحة */}
+      <div className={`orders-cards-list ${filteredOrders.length === 0 ? 'flex-1 flex flex-col justify-center items-center my-auto min-h-[50vh]' : ''}`}>
         {filteredOrders.map((order) => (
           <div key={order.id} className="lawyer-order-card">
             <div className="lawyer-order-content">
@@ -290,11 +290,11 @@ export default function LawyerOrdersTab({
         ))}
 
         {filteredOrders.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center py-12 px-4 select-none">
+          <div className="flex flex-col items-center justify-center text-center py-6 px-4 select-none my-auto">
             <img
               src={emptyOrdersIllustration}
               alt="لا توجد طلبات"
-              className="w-48 h-auto max-h-40 mb-4 object-contain opacity-95 pointer-events-none"
+              className="w-52 max-w-[70vw] h-auto max-h-48 mb-4 object-contain opacity-95 pointer-events-none"
             />
             <p className="text-sm font-semibold text-slate-500 m-0">
               لا توجد طلبات في هذا القسم حالياً
