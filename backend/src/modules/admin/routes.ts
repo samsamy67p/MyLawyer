@@ -69,9 +69,9 @@ export async function adminRoutes(fastify: FastifyInstance) {
       // Update lawyer profile
       await client.query(
         `UPDATE lawyer_profiles
-         SET approval_status = $1,
-             approved_at = CASE WHEN $1 = 'approved' THEN NOW() ELSE approved_at END,
-             rejected_at = CASE WHEN $1 = 'rejected' THEN NOW() ELSE rejected_at END,
+         SET approval_status = $1::lawyer_approval_status,
+             approved_at = CASE WHEN $1::text = 'approved' THEN NOW() ELSE approved_at END,
+             rejected_at = CASE WHEN $1::text = 'rejected' THEN NOW() ELSE rejected_at END,
              rejection_reason = $2,
              updated_at = NOW()
          WHERE id = $3`,
@@ -80,14 +80,14 @@ export async function adminRoutes(fastify: FastifyInstance) {
 
       // Update user status
       await client.query(
-        'UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2',
+        'UPDATE users SET status = $1::user_status, updated_at = NOW() WHERE id = $2',
         [targetUserStatus, lawyer.user_id]
       );
 
       // Audit history
       await client.query(
         `INSERT INTO lawyer_approval_history (lawyer_profile_id, action, reason, admin_user_id)
-         VALUES ($1, $2, $3, $4)`,
+         VALUES ($1, $2::lawyer_action_type, $3, $4)`,
         [id, decision, cleanReason, adminId]
       );
     });
