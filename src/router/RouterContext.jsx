@@ -37,8 +37,15 @@ export function RouterProvider({ children, initialUser, isLocationDone }) {
     // حماية المسارات: إذا لم يكن المستخدم مسجلاً، يبدأ بـ /login
     if (!initialUser) return ROUTES.LOGIN;
 
-    // إذا كان المستخدم مسجلاً ولكن لم يكمل إعداد الموقع
-    if (initialUser && !isLocationDone) {
+    // توجيه المحامي تلقائياً لواجهته الخاصة حسب حالة حسابه
+    if (initialUser?.role === 'lawyer') {
+      if (initialUser.status === 'active') return ROUTES.LAWYER_DASHBOARD;
+      if (initialUser.status === 'pending_admin_approval') return ROUTES.PENDING_APPROVAL;
+      return ROUTES.ACCOUNT_STATUS;
+    }
+
+    // للموكل: إذا لم يكمل إعداد الموقع لأول مرة
+    if (!isLocationDone) {
       if (initial === ROUTES.LOCATION_MAP) return ROUTES.LOCATION_MAP;
       return ROUTES.LOCATION_SETUP;
     }

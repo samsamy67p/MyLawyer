@@ -250,7 +250,11 @@ function AppNavigationContent({
   }
 
   // 5. شاشة انتظار موافقة الإدارة أو الحساب المعلق للمحامي
-  if (currentPath === ROUTES.PENDING_APPROVAL || currentPath === ROUTES.ACCOUNT_STATUS) {
+  if (
+    currentPath === ROUTES.PENDING_APPROVAL ||
+    currentPath === ROUTES.ACCOUNT_STATUS ||
+    (currentUser?.role === 'lawyer' && currentUser?.status !== 'active')
+  ) {
     return (
       <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOGIN)}>
         <AccountStatusScreen
