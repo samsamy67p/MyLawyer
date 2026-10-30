@@ -80,8 +80,9 @@ jobs:
     steps:
       - name: Execute Atomic Zero-Downtime Deploy on VPS
         run: |
+          sudo -u postgres psql -d mylawyer_prod -c "DO \$\$ DECLARE r RECORD; BEGIN FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP EXECUTE 'ALTER TABLE public.' || quote_ident(r.tablename) || ' OWNER TO mylawyer_user;'; END LOOP; END \$\$;" || true
           sudo /var/www/mylawyer/deploy.sh
-          cd /var/www/mylawyer/backend && npm run migrate || true
+          cd /var/www/mylawyer/backend && npm run migrate
           sudo systemctl restart mylawyer-backend
           sleep 3
 
