@@ -48,7 +48,7 @@ jobs:
       - name: Run Static Analysis (Oxlint - 104 rules)
         run: npm run lint
 
-      - name: Run Unit & Integration Test Suite (34 automated tests)
+      - name: Run Unit & Integration Test Suite (35 automated tests)
         run: npm test
 
       - name: Build Web Production Bundle
@@ -59,13 +59,14 @@ jobs:
           tar -czf /tmp/mylawyer-build.tar.gz -C dist .
           ls -lh /tmp/mylawyer-build.tar.gz
 
-      # Backend Build
+      # Backend Build & Validation
       - name: Clean Install Backend Dependencies
         run: |
           cd backend
           npm ci
+          npx oxlint src
           npm run build
-          tar -czf /tmp/mylawyer-backend.tar.gz dist package.json package-lock.json
+          tar -czf /tmp/mylawyer-backend.tar.gz dist package.json package-lock.json migrations
           ls -lh /tmp/mylawyer-backend.tar.gz
 
   # -----------------------------------------------------------

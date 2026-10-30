@@ -30,7 +30,7 @@ npm.cmd run dev -- --host
 # 2. تشغيل التحليل الساكن للكود (Oxlint - 104 قاعدة)
 npm.cmd run lint
 
-# 3. تشغيل اختبارات الوحدات والتكامل لنظام الخرائط والمسارات (14 اختباراً آلياً)
+# 3. تشغيل اختبارات الوحدات والتكامل والشاشات (35 اختباراً آلياً)
 npm.cmd test
 
 # 4. بناء نسخة الإنتاج للويب و Capacitor
@@ -57,8 +57,25 @@ my_lawyer/
 │       ├── docker-compose.yml
 │       └── nginx.conf
 ├── docs/
+│   ├── 01_ARCHITECTURE_OVERVIEW.md               # نظرة عامة على المعمارية وهيكل الطبقات الموزعة
+│   ├── 02_API_REFERENCE.md                       # الدليل المرجعي الكامل لواجهات برمجة التطبيقات (Fastify REST)
+│   ├── 03_DATABASE_SCHEMA.md                     # مخطط قاعدة البيانات PostgreSQL 16 والترحيلات والفهارس
+│   ├── 04_MOBILE_ANDROID_IOS.md                  # دليل تطوير وبناء تطبيقات الهواتف الذكية (Android & iOS)
+│   ├── 05_SERVER_DEVOPS_DEPLOYMENT.md            # دليل إدارة الخادم والعمليات والنشر الذري والنسخ الاحتياطي
+│   ├── 06_DEVELOPER_GUIDE.md                     # دليل المطور وإرشادات المساهمة وقائمة تحقق PR
 │   ├── CI_CD_AND_DEPLOYMENT_GUIDE.md             # دليل دورة التطوير والنشر التلقائي الذري وإدارة الإصدارات
 │   └── MAPS_PRODUCTION_INFRASTRUCTURE.md         # توثيق تشغيل خادم الخرائط للإنتاج التجاري
+├── backend/
+│   ├── migrations/                               # ترحيلات SQL المرقمة (001_initial_schema.sql)
+│   ├── src/
+│   │   ├── config/                               # إعدادات البيئة
+│   │   ├── database/                             # مجمع pg ومحرك الترحيل (migrate.ts)
+│   │   ├── modules/                              # وحدات auth, users, lawyers, admin
+│   │   ├── services/                             # خدمات البريد والتشفير
+│   │   ├── utils/                                # دوال الأمان والتحقق
+│   │   ├── app.ts                                # إعداد تطبيق Fastify والحماية
+│   │   └── server.ts                             # نقطة بدء خادم الـ API
+│   └── package.json                              # اعتماديات الباك إند وأوامر build, migrate, lint
 └── src/
     ├── main.jsx                                  # نقطة الدخول لـ React 19 وربط شجرة المكونات بـ #root
     ├── App.jsx                                   # الجذر الرئيسي: إدارة التنقل، الجلسة، وزر الرجوع في الهاتف
