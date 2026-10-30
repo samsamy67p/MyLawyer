@@ -298,14 +298,14 @@
   margin: 0 auto;
 }
 
-/* Lawyer Custom Order Action Buttons: أزرار الإجراءات جنباً إلى جنب دائماً في نفس السطر */
+/* Lawyer Custom Order Action Buttons: أزرار الإجراءات جنباً إلى جنب دائماً مع خط فاصل بشرط متقطعة */
 .lawyer-order-actions-grid {
   display: flex;
   align-items: center;
   gap: 8px;
   padding-top: 14px;
-  margin-top: 6px;
-  border-top: 1px solid #F1F5F9;
+  margin-top: 8px;
+  border-top: 1.5px dashed #CBD5E1;
   width: 100%;
   flex-wrap: nowrap;
   box-sizing: border-box;

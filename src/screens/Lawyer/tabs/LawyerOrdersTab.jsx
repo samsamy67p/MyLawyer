@@ -133,7 +133,7 @@ export default function LawyerOrdersTab({
                     <td className="text-slate-700">{order.date}</td>
                   </tr>
 
-                  {/* 4. الخدمة */}
+                  {/* 4. الخدمة الرئيسية */}
                   <tr>
                     <th>
                       <div className="lawyer-order-table-label">
@@ -142,9 +142,7 @@ export default function LawyerOrdersTab({
                       </div>
                     </th>
                     <td className="font-bold text-[#1D4ED8]">
-                      {(order.serviceTitle || 'محاميك حالاً')
-                        .replace(/^محاميك\s*حالاً\s*(:|—|-)?\s*/i, '')
-                        .trim() || 'محاميك حالاً'}
+                      محاميك حالاً
                     </td>
                   </tr>
 
