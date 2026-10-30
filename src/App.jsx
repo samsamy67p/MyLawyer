@@ -321,7 +321,12 @@ function AppNavigationContent({
         <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.HOME)}>
           <LawyerNowRequestScreen
             key={`lawyer-req-${requestSessionId}`}
+            initialDetails={lawyerNowRequestDetails}
             onBack={() => transitionTo(ROUTES.HOME)}
+            onProceedToMap={(details) => {
+              setLawyerNowRequestDetails(details);
+              transitionTo(ROUTES.LAWYER_NOW_MAP);
+            }}
             onSubmitDetails={(details) => {
               setLawyerNowRequestDetails(details);
               transitionTo(ROUTES.LAWYER_NOW_MAP);
@@ -342,6 +347,13 @@ function AppNavigationContent({
             userAddress={userLocation?.address}
             requestDetails={lawyerNowRequestDetails}
             onBack={() => transitionTo(ROUTES.LAWYER_NOW_REQUEST)}
+            onModalStateChange={(isOpen, dismissFn) => {
+              if (isOpen && dismissFn) {
+                registerModalDismiss?.(dismissFn);
+              } else {
+                unregisterModalDismiss?.();
+              }
+            }}
             registerModalDismiss={registerModalDismiss}
             unregisterModalDismiss={unregisterModalDismiss}
           />

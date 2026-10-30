@@ -97,6 +97,7 @@ export default function LawyerNowRequestScreen({
   initialDetails = null,
   onBack,
   onProceedToMap,
+  onSubmitDetails,
   onModalStateChange,
 }) {
   // Step 1: اختيار نوع الخدمة المصغرة
@@ -136,11 +137,16 @@ export default function LawyerNowRequestScreen({
     setIsSearching(true);
     setTimeout(() => {
       setIsSearching(false);
-      onProceedToMap?.({
+      const details = {
         serviceType: selectedType?.id,
         serviceTitle: selectedType?.title,
         description: sanitizeText(problemDescription, 400),
-      });
+      };
+      if (onProceedToMap) {
+        onProceedToMap(details);
+      } else if (onSubmitDetails) {
+        onSubmitDetails(details);
+      }
     }, 240);
   };
 
