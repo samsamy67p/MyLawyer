@@ -98,10 +98,9 @@ button {
   cursor: pointer;
 }
 
-/* Base safeguard: never let adjacent block buttons stick together */
-button + button,
+/* Base safeguard: stack spacing only for full-width or vertically stacked buttons */
 .w-full + .w-full,
-.btn-group > * + * {
+.btn-group-vertical > * + * {
   margin-top: 12px;
 }
 
