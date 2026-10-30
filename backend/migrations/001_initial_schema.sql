@@ -163,13 +163,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
-CREATE TRIGGER trg_users_updated_at
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
+DO $$
+BEGIN
+    DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
+    CREATE TRIGGER trg_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Could not configure trigger on users: %', SQLERRM;
+END $$;
 
-DROP TRIGGER IF EXISTS trg_lawyer_profiles_updated_at ON lawyer_profiles;
-CREATE TRIGGER trg_lawyer_profiles_updated_at
-BEFORE UPDATE ON lawyer_profiles
-FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
+DO $$
+BEGIN
+    DROP TRIGGER IF EXISTS trg_lawyer_profiles_updated_at ON lawyer_profiles;
+    CREATE TRIGGER trg_lawyer_profiles_updated_at
+    BEFORE UPDATE ON lawyer_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_timestamp_column();
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Could not configure trigger on lawyer_profiles: %', SQLERRM;
+END $$;
 

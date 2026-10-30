@@ -17,6 +17,21 @@ export async function runMigrations(closePool = false): Promise<number> {
     );
   `);
 
+  // Baseline check: If core tables already exist from previous deployments before
+  // the migration runner was added, mark 001_initial_schema.sql as applied so it
+  // doesn't attempt to re-run and collide with existing structures or permissions.
+  const { rows: baselineCheck } = await dbPool.query(`
+    SELECT 1 FROM information_schema.tables 
+    WHERE table_schema = 'public' AND table_name = 'users'
+  `);
+  if (baselineCheck.length > 0) {
+    await dbPool.query(`
+      INSERT INTO schema_migrations (name) 
+      VALUES ('001_initial_schema.sql') 
+      ON CONFLICT (name) DO NOTHING;
+    `);
+  }
+
   // 2. Discover migration files
   const candidateDirs = [
     path.resolve(process.cwd(), 'migrations'),
