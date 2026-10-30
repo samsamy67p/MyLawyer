@@ -17,11 +17,6 @@ export default function LawyerOrdersTab({
 
   return (
     <main className="orders-main-content">
-      <div className="orders-page-header">
-        <h2>طلبات الموكلين</h2>
-        <p>إدارة ومتابعة طلبات الموكلين الواردة والجارية</p>
-      </div>
-
       {/* Filter Pills matching OrdersScreen.css 1:1 */}
       <div className="orders-filter-row">
         <button

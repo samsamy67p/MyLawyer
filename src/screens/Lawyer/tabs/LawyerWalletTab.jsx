@@ -7,11 +7,6 @@ export default function LawyerWalletTab({
 }) {
   return (
     <main className="wallet-main-content">
-      <div className="wallet-page-header">
-        <h2>محفظة المحامي</h2>
-        <p>رصيدك من الأتعاب المحصلة وسحب الأموال لحسابك</p>
-      </div>
-
       {/* Balance Card matching WalletScreen 1:1 */}
       <div className="wallet-balance-card">
         <div className="wallet-balance-top">
