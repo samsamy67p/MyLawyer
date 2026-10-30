@@ -114,8 +114,14 @@ export default function LawyerHomeTab({
         </div>
       </section>
 
-      {/* 3. قائمة الخدمات والإحصائيات */}
-      <section className="services-container-list mt-1">
+      {/* 3. قسم المؤشرات والأداء القانوني */}
+      <section className="home-intro-section mt-4">
+        <h2>مؤشرات الأداء والطلبات</h2>
+        <p>إدارة طلبات الموكلين والمحفظة والتقييم الميداني</p>
+      </section>
+
+      {/* 4. قائمة الخدمات والإحصائيات */}
+      <section className="services-container-list">
         <ServiceRow
           icon={Wallet}
           title={`${availableBalance.toLocaleString()} ج.م — رصيد أتعابك المتاح`}
