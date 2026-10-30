@@ -302,7 +302,9 @@ function AppNavigationContent({
       <Suspense fallback={null}>
         <ScreenErrorBoundary onReset={() => transitionTo(ROUTES.LOCATION_SETUP)}>
           <MapScreen
+            userCoords={pendingLocation?.coords}
             initialCoords={pendingLocation?.coords}
+            addressTitle={pendingLocation?.address}
             initialAddress={pendingLocation?.address}
             onConfirmLocation={(coords, address) => {
               handleLocationSave(coords, address);

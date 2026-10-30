@@ -5,7 +5,7 @@ import {
   ChevronRight,
   Crosshair,
   MapPin,
-  Check,
+  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import LawyerProfileModal from '../../components/common/LawyerProfileModal';
@@ -19,11 +19,16 @@ import './MapScreen.css';
 
 export default function MapScreen({
   userCoords,
+  initialCoords,
   addressTitle,
+  initialAddress,
   onConfirmLocation,
   onBack,
   onModalStateChange,
 }) {
+  const effectiveCoords = userCoords || initialCoords;
+  const effectiveAddress = addressTitle || initialAddress;
+
   const {
     position,
     sortedLawyers,
@@ -34,14 +39,12 @@ export default function MapScreen({
     setSelectedLawyerId,
     setActiveTargetLawyerId,
     markLawyerVisited,
-    hasAlternativeLawyer,
-    selectAlternativeLawyer,
     isSearchingNearby,
     routeStatus,
     activeRouteCoords,
     routeInfo,
     routeErrorMsg,
-  } = useNearbyLawyersRoute(userCoords);
+  } = useNearbyLawyersRoute(effectiveCoords);
 
   const mapRef = useRef(null);
   const hasUserSelectedLawyerRef = useRef(false);
@@ -118,21 +121,6 @@ export default function MapScreen({
     }
   };
 
-  const handleSelectAlternativeLawyer = (currentLawyer) => {
-    hasUserSelectedLawyerRef.current = true;
-    const result = selectAlternativeLawyer(currentLawyer?.id || selectedLawyerId);
-    if (result?.nextLawyer?.coords) {
-      actionSeqRef.current += 1;
-      setMapAction({
-        type: 'FOCUS_LAWYER',
-        coords: result.nextLawyer.coords,
-        isSheetOpen: true,
-        sheetHeightRatio: 0.5,
-        seq: actionSeqRef.current,
-      });
-    }
-  };
-
   const handleRecenter = () => {
     actionSeqRef.current += 1;
     setMapAction({
@@ -197,7 +185,7 @@ export default function MapScreen({
             <Popup className="clean-custom-popup">
               <div className="popup-inner">
                 <strong>موقعك المعتمد</strong>
-                <p>{addressTitle || 'تم تحديد موقعك بدقة'}</p>
+                <p>{effectiveAddress || 'تم تحديد موقعك بدقة'}</p>
               </div>
             </Popup>
           </Marker>
@@ -252,7 +240,7 @@ export default function MapScreen({
           </div>
           <div className="map-summary-text">
             <span className="map-summary-label">الموقع المحدد للخدمة</span>
-            <h4 className="map-summary-address">{addressTitle || 'مصر'}</h4>
+            <h4 className="map-summary-address">{effectiveAddress || 'مصر'}</h4>
           </div>
         </div>
 
@@ -263,26 +251,22 @@ export default function MapScreen({
           onClick={() =>
             onConfirmLocation?.(
               { latitude: position[0], longitude: position[1] },
-              addressTitle
+              effectiveAddress
             )
           }
         >
-          <Check size={18} />
-          <span>تأكيد الموقع والمتابعة</span>
+          <span>التالي</span>
+          <ArrowLeft size={18} />
         </Button>
       </div>
 
-      {/* Lawyer Profile Sheet Modal */}
+      {/* Lawyer Profile Sheet Modal - ReadOnly for Location Preview */}
       {selectedLawyer && (
         <LawyerProfileModal
           lawyer={selectedLawyer}
-          hasAlternativeLawyer={hasAlternativeLawyer}
+          readOnly={true}
+          hasAlternativeLawyer={false}
           onClose={() => setSelectedLawyerId(null)}
-          onSelectAlternativeLawyer={handleSelectAlternativeLawyer}
-          onRequestService={(lawyer) => {
-            alert(`تم اختيار المستشار ${lawyer.name}`);
-            setSelectedLawyerId(null);
-          }}
         />
       )}
     </div>

@@ -21,6 +21,7 @@ export default function LawyerProfileModal({
   lawyerDecisionStatus = null, // 'ACCEPTED' | 'REJECTED' | null
   lawyerDecisionCountdown = 3,
   hasAlternativeLawyer = true,
+  readOnly = false,
   onClose,
   onStepBack,
   onStartPriceEvaluation,
@@ -446,34 +447,47 @@ export default function LawyerProfileModal({
         {/* Actions Footer */}
         {cardStage === 'PROFILE' && (
           <div className="lawyer-modal-footer">
-            <div className="lawyer-modal-actions-row">
+            {readOnly ? (
               <Button
                 type="button"
-                onClick={() =>
-                  onStartPriceEvaluation
-                    ? onStartPriceEvaluation(lawyer)
-                    : onRequestService?.(lawyer)
-                }
-                className="lawyer-primary-order-btn text-base font-bold"
+                variant="secondary"
+                onClick={onClose}
+                className="w-full text-base font-bold"
               >
-                <span>طلب الآن</span>
+                <span>إغلاق الملف</span>
               </Button>
+            ) : (
+              <>
+                <div className="lawyer-modal-actions-row">
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      onStartPriceEvaluation
+                        ? onStartPriceEvaluation(lawyer)
+                        : onRequestService?.(lawyer)
+                    }
+                    className="lawyer-primary-order-btn text-base font-bold"
+                  >
+                    <span>طلب الآن</span>
+                  </Button>
 
-              {onSelectAlternativeLawyer && (
-                <Button
-                  type="button"
-                  disabled={!hasAlternativeLawyer}
-                  onClick={() => onSelectAlternativeLawyer(lawyer)}
-                  className="lawyer-alt-btn font-bold"
-                >
-                  <span>محامي اخر</span>
-                </Button>
-              )}
-            </div>
-            {onSelectAlternativeLawyer && !hasAlternativeLawyer && (
-              <p className="lawyer-no-alt-note">
-                لا يوجد محامون بديلون آخرون في نطاق موقعك حالياً
-              </p>
+                  {onSelectAlternativeLawyer && (
+                    <Button
+                      type="button"
+                      disabled={!hasAlternativeLawyer}
+                      onClick={() => onSelectAlternativeLawyer(lawyer)}
+                      className="lawyer-alt-btn font-bold"
+                    >
+                      <span>محامي اخر</span>
+                    </Button>
+                  )}
+                </div>
+                {onSelectAlternativeLawyer && !hasAlternativeLawyer && (
+                  <p className="lawyer-no-alt-note">
+                    لا يوجد محامون بديلون آخرون في نطاق موقعك حالياً
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
